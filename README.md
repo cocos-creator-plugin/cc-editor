@@ -1,7 +1,7 @@
 # cc-editor
 通过cli启动调试Creator主进程，也可以进行简单的Creator的版本和项目管理工作。
 
-![](./doc/img.png)
+![](./.README_images/img.png)
 
 
 # 使用前的配置
