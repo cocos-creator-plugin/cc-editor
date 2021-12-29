@@ -16,11 +16,17 @@
   },
   "homepage": "https://github.com/cocos-creator-plugin/cc-editor#readme",
   "dependencies": {
+    "@types/fs-extra": "^9.0.1",
+    "@types/node": "^16.11.12",
+    "chalk": "2.4.2",
+    "execa": "5.1.1",
+    "inquirer": "^8.2.0",
+    "commander": "^8.3.0",
+    "fs-extra": "^10.0.0",
     "open": "^8.4.0",
     "ora": "^6.0.1",
     "osenv": "^0.1.5",
     "portfinder": "^1.0.28",
-    "printf": "^0.6.1",
-    "chalk": "2.4.2"
+    "printf": "^0.6.1"
   }
 }

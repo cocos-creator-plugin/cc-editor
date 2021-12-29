@@ -30,7 +30,7 @@ module.exports = () => {
         log.green(`请使用chrome浏览器打开： ${url}`);
         log.green(`在Configure增加配置 localhost:${port}`)
         const tutorials = 'https://juejin.cn/post/7047050908865134628/'
-        log.green(`详细教程:${tutorials}`)
+        log.green(`详细教程: ${tutorials}`)
         // open(url)// chrome限制，无法打开
     }
 }
