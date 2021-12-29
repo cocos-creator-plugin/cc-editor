@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "bin": {
-    "cc-editor": "./index.js"
+    "cc-editor": "./src/index.js"
   },
   "repository": {
     "type": "git",
