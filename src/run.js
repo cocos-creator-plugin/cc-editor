@@ -4,15 +4,27 @@ const Config = require('./config')
 const Path = require('path')
 const log = require('./log')
 const open = require('open')
+const plist = require('plist')
+const Fs = require('fs');
+
 module.exports = () => {
     const { project } = Config.data.use;
     const { debug, port, brk } = Config.data;
-    let editorPath = Config.getCurrentEditorPath();
+    const rootPath = Config.getCurrentEditorPath();
+    let editorPath = rootPath;
+    let version = '2.4.7';
     if (OS.platform() === 'darwin') {
-        editorPath = Path.join(editorPath, 'Contents/MacOS/CocosCreator')
+        editorPath = Path.join(rootPath, 'Contents/MacOS/CocosCreator')
+        const plistFile = Path.join(rootPath, 'Contents/Info.plist');
+        const ret = plist.parse(Fs.readFileSync(plistFile, 'utf-8'))
+        if (ret) {
+            version = ret.CFBundleVersion || ret.CFBundleShortVersionString;
+        }
+    } else {
+        // todo windows
     }
-    // todo 有的版本是--path， 有的版本是project
-    let cmd = `${editorPath} --path ${project}`
+    const projectParam = version.startsWith('2.') ? 'path' : 'project'
+    let cmd = `${editorPath} --${projectParam} ${project}`
     if (debug) {
         if (brk) {
             cmd += ` --inspect-brk=${port}`
