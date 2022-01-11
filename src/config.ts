@@ -1,61 +1,64 @@
-const OS = require('os')
-const Path = require('path')
-const FsExtra = require('fs-extra');
-const OsEnv = require('osenv')
+import OS from 'os'
+import * as Path from 'path'
+import * as FsExtra from 'fs-extra'
+import OsEnv from 'osenv'
+import log from './log'
+
 const FilePath = Path.join(OsEnv.home(), 'cc-editor.json')
-const log = require('./log')
+
+class ConfigData {
+    editors: Array<{ name: string, path: string }> = [];
+    projects: string[] = [];
+    use: { editor: string, project: string } = {
+        editor: '',
+        project: '',
+    }
+    debug: boolean = true;
+    brk: boolean = false;
+    port: number = 2021;
+}
+
 
 class Config {
-    data = {
-        editors: [
-            // { name: '1', path: '' }
-        ],
-        projects: [],
-        use: {
-            editor: '',
-            project: '',
-        },
-        debug: true,
-        brk: false,
-        port: 2021,
-    }
+    data: ConfigData = new ConfigData();
 
-    setPort (port) {
+    setPort(port: number) {
         this.data.port = port || this.data.port;
         this.save();
     }
 
-    setDebug (debug) {
+    setDebug(debug: boolean) {
         this.data.debug = !!debug;
         this.save();
     }
 
-    setBrk (brk) {
+    setBrk(brk: boolean) {
         this.data.brk = !!brk;
+        log.green(!!this.data.brk ? '启用brk' : '禁用brk')
         this.save();
     }
 
-    constructor () {
+    constructor() {
         if (!FsExtra.existsSync(FilePath)) {
             FsExtra.writeJSONSync(FilePath, {});
         }
         this.data = Object.assign(this.data, FsExtra.readJSONSync(FilePath));
     }
 
-    save () {
+    save() {
         FsExtra.writeJSONSync(FilePath, this.data)
     }
 
-    getCurrentEditorPath () {
+    getCurrentEditorPath():string|null {
         const { project, editor } = this.data.use;
         const ret = this.data.editors.find(el => el.name === editor)
-        if (ret.path) {
+        if (ret && ret.path) {
             return ret.path || null;
         }
         return null;
     }
 
-    useProject (project) {
+    useProject(project: string) {
         let success = true, msg = '';
         if (FsExtra.existsSync(project)) {
             this.data.use.project = project
@@ -67,7 +70,7 @@ class Config {
         return { success, msg };
     }
 
-    useEditor (name) {
+    useEditor(name: string) {
         let success = true, msg = '';
         const ret = this.data.editors.find(el => el.name === name);
         if (ret) {
@@ -85,7 +88,19 @@ class Config {
         return { success, msg };
     }
 
-    addProject (projectPath) {
+    removeProject(projectPath: string) {
+        let success = true, msg = '';
+        const index = this.data.projects.findIndex(el => el === projectPath)
+        if (index === -1) {
+            success = false;
+            msg = '未找到项目配置，删除失败 ';
+        } else {
+            this.data.projects.splice(index, 1);
+        }
+        return { success, msg };
+    }
+
+    addProject(projectPath: string) {
         let success = true, msg = '';
         if (FsExtra.existsSync(projectPath)) {
             if (!this.data.projects.find(el => el === projectPath)) {
@@ -99,7 +114,7 @@ class Config {
         return { success, msg };
     }
 
-    addEditor (name, editorPath) {
+    addEditor(name: string, editorPath: string) {
         let success = true, msg = '';
         if (FsExtra.existsSync(editorPath)) {
             if (!this.data.editors.find(el => el.path === editorPath)) {
@@ -113,15 +128,15 @@ class Config {
         return { success, msg };
     }
 
-    log () {
+    log() {
         log.blue(`config file path: ${FilePath}`)
         log.green(JSON.stringify(this.data, null, 2))
     }
 
-    checkRun () {
+    checkRun() {
         let success = true, msg = '';
         return { success, msg }
     }
 }
 
-module.exports = new Config();
+export default   new Config();

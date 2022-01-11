@@ -1,23 +1,24 @@
-const Execa = require('execa')
-const OS = require('os')
-const Config = require('./config')
-const Path = require('path')
-const log = require('./log')
-const open = require('open')
-const plist = require('plist')
-const Fs = require('fs');
+import Execa from 'execa'
+import OS from 'os'
+import Config from './config'
+import * as  Path from 'path'
+import log from './log'
+import open from 'open'
+import plist from 'plist'
+import * as Fs from 'fs'
 
-module.exports = () => {
+export default () => {
     const { project } = Config.data.use;
     const { debug, port, brk } = Config.data;
     const rootPath = Config.getCurrentEditorPath();
     let editorPath = rootPath;
     let version = '2.4.7';
-    if (OS.platform() === 'darwin') {
+    if (rootPath && OS.platform() === 'darwin') {
         editorPath = Path.join(rootPath, 'Contents/MacOS/CocosCreator')
         const plistFile = Path.join(rootPath, 'Contents/Info.plist');
         const ret = plist.parse(Fs.readFileSync(plistFile, 'utf-8'))
         if (ret) {
+            // @ts-ignore
             version = ret.CFBundleVersion || ret.CFBundleShortVersionString;
         }
     } else {
@@ -34,7 +35,7 @@ module.exports = () => {
     }
     log.blue(cmd)
     const ret = Execa.command(cmd)
-    ret.stdout.on('data', (data) => {
+    ret.stdout?.on('data', (data) => {
         console.log(data.toString())
     })
     if (debug) {

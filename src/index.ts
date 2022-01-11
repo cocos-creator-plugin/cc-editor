@@ -1,28 +1,33 @@
 #! /usr/bin/env node
-const Fs = require('fs')
-const { program } = require('commander');
-const Config = require('./config');
-const chalk = require('chalk')
-const log = require('./log')
-const Run =require('./run')
+import { getEditorChoice, getProjectChoice } from "./choice"
+
+import * as Fs from 'fs'
+import { program } from 'commander'
+import Config from './config'
+import chalk from 'chalk'
+import log from './log'
+import Run from './run'
+import  inquirer = require('inquirer')
+
 program
     .version('0.0.1')
     .allowUnknownOption(true)
 
 program.command('set-port')
     .argument('port', '调试端口')
-    .action((port) => {
+    .action((port: string) => {
+        let p = 0;
         try {
-            port = parseInt(port)
+            p = parseInt(port)
         } catch (e) {
-            port = 0;
+            p = 0;
         }
-        Config.setPort(port)
+        Config.setPort(p)
     })
 
 program.command('set-debug')
     .argument('debug', '开启主进程调试')
-    .action((debug) => {
+    .action((debug: string) => {
         Config.setDebug(debug.toLowerCase() === 'true')
     })
 program.command('set-brk')
@@ -34,12 +39,28 @@ program.command('set-brk')
 program.command('add-project')
     .description('添加项目路径')
     .argument('project-path', '项目路径')
-    .action((projectPath) => {
+    .action((projectPath: string) => {
         const ret = Config.addProject(projectPath);
         if (!ret.success) {
             log.red(ret.msg);
         }
     })
+
+program.command('remove-project')
+    .description('删除项目配置')
+    .action(() => {
+        getProjectChoice({
+            askMsg: '请选择要删除的项目',
+            onChoice: (ans) => {
+                Config.removeProject(ans.name);
+            },
+            noChoice() {
+                log.red('没有可以删除的项目')
+            }
+        })
+    });
+
+
 program.command('add-editor')
     .description('添加编辑器路径')
     .argument('editor-name', '编辑器名字')
@@ -53,59 +74,36 @@ program.command('add-editor')
 program.command('use-editor')
     .description('使用本地指定的配置')
     .action(() => {
-        const choices = Config.data.editors.map(editor => {
-            return {
-                name: editor.name,
-                value: editor.name,
-            }
-        })
-        if (choices.length > 0) {
-            const inquirer = require('inquirer');
-            inquirer.prompt([
-                {
-                    name: 'name',
-                    message: '请选择使用的Creator版本',
-                    type: 'list',
-                    choices,
-                }
-            ]).then(ans => {
+        getEditorChoice({
+            askMsg: '请选择使用的Creator版本',
+            noChoice() {
+                log.red(`请先添加编辑器路径: add-editor`)
+
+            },
+            onChoice: (ans) => {
                 const ret = Config.useEditor(ans.name)
                 if (!ret.success) {
                     console.log(ret.msg)
                 }
-            });
-        } else {
-            log.red(`请先添加编辑器路径: add-editor`)
-        }
+            }
+        })
     })
 
 program.command('use-project')
     .description('使用的项目')
     .action(() => {
-        const choices = Config.data.projects.map(project => {
-            return {
-                name: project,
-                value: project,
-            }
-        })
-        if (choices.length > 0) {
-            const inquirer = require('inquirer');
-            inquirer.prompt([
-                {
-                    name: 'name',
-                    message: '请选择使用的项目',
-                    type: 'list',
-                    choices,
-                }
-            ]).then(ans => {
+        getProjectChoice({
+            askMsg: '请选择使用的项目',
+            noChoice() {
+                log.red(`请先添加项目路径： add-project `)
+            },
+            onChoice: (ans) => {
                 const ret = Config.useProject(ans.name)
                 if (!ret.success) {
                     console.log(ret.msg)
                 }
-            });
-        } else {
-            log.red(`请先添加项目路径： add-project `)
-        }
+            }
+        })
     })
 
 

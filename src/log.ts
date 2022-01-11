@@ -1,12 +1,12 @@
 const chalk = require('chalk')
-module.exports = {
-    green (str) {
+export default {
+    green(str: string) {
         console.log(chalk.green(str || ''))
     },
-    red (str) {
+    red(str: string) {
         console.log(chalk.red(str || ''))
     },
-    blue (str) {
+    blue(str?: string) {
         console.log(chalk.blue(str || ''))
     }
 }
