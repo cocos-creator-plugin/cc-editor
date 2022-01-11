@@ -9,7 +9,7 @@ export interface Choices {
 
 export interface ChoiceOptions {
     onChoice: (ans: Choices) => void,
-    noChoice: Function,
+    noChoice?: Function,
     askMsg: string,
 }
 
@@ -47,6 +47,16 @@ export function getProjectChoice(options: ChoiceOptions) {
         return {
             name: project,
             value: project,
+        }
+    })
+    ask(choices, options);
+}
+
+export function getGroupChoice(options: ChoiceOptions) {
+    const choices = Config.data.groups.map(group => {
+        return {
+            name: `${group.name} [${group.editor}]/[${group.project}]`,
+            value: group.name,
         }
     })
     ask(choices, options);

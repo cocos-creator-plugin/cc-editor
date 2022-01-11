@@ -3,6 +3,7 @@
 
 ![](./.README_images/img.png)
 
+> cce / cc-editor 都可以
 
 # 使用前的配置
 

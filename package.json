@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "description": "",
   "bin": {
-    "cc-editor": "./bin/index.js"
+    "cc-editor": "./bin/index.js",
+    "cce": "./bin/index.js"
   },
   "scripts": {
     "build-watch": "tsc --watch"

@@ -1,5 +1,5 @@
 #! /usr/bin/env node
-import { getEditorChoice, getProjectChoice } from "./choice"
+import { getEditorChoice, getGroupChoice, getProjectChoice } from "./choice"
 
 import * as Fs from 'fs'
 import { program } from 'commander'
@@ -8,6 +8,7 @@ import chalk from 'chalk'
 import log from './log'
 import Run from './run'
 import  inquirer = require('inquirer')
+import { logFailed } from './util';
 
 program
     .version('0.0.1')
@@ -46,21 +47,6 @@ program.command('add-project')
         }
     })
 
-program.command('remove-project')
-    .description('删除项目配置')
-    .action(() => {
-        getProjectChoice({
-            askMsg: '请选择要删除的项目',
-            onChoice: (ans) => {
-                Config.removeProject(ans.name);
-            },
-            noChoice() {
-                log.red('没有可以删除的项目')
-            }
-        })
-    });
-
-
 program.command('add-editor')
     .description('添加编辑器路径')
     .argument('editor-name', '编辑器名字')
@@ -70,6 +56,25 @@ program.command('add-editor')
         if (!ret.success) {
             log.red(ret.msg)
         }
+    })
+program.command('add-group')
+    .description('将当前使用的的配置保存为一个组合，供下次使用')
+    .argument('name', '组合的名字')
+    .action((name: string) => {
+        getEditorChoice({
+            askMsg: '请选择要组合的编辑器',
+            onChoice: (editor) => {
+                getProjectChoice({
+                    askMsg: '请选择要组合的项目',
+                    onChoice: (project) => {
+                        let ret = Config.addGroup(name, editor.name, project.name)
+                        if (!ret.success) {
+                            return log.red(ret.msg)
+                        }
+                    }
+                })
+            }
+        })
     })
 program.command('use-editor')
     .description('使用本地指定的配置')
@@ -105,6 +110,64 @@ program.command('use-project')
             }
         })
     })
+program.command('use-group')
+    .description('')
+    .action(() => {
+        getGroupChoice({
+            askMsg: '请选择要使用的组合',
+            onChoice(ans) {
+                logFailed(Config.useGroup(ans.name))
+            },
+            noChoice() {
+                log.red('没有可以使用的组合')
+            }
+        })
+    })
+program.command('rm-project')
+    .description('删除项目配置')
+    .action(() => {
+        getProjectChoice({
+            askMsg: '请选择要删除的项目',
+            onChoice: (ans) => {
+                let ret = Config.removeProject(ans.name);
+                if (!ret.success) {
+                    return log.red(ret.msg)
+                }
+            },
+            noChoice() {
+                log.red('没有可以删除的项目')
+            }
+        })
+    });
+
+program.command('rm-editor')
+    .description('删除编辑器配置')
+    .action(() => {
+        getEditorChoice({
+            askMsg: '请选择要删除的编辑器',
+            onChoice: (ans) => {
+                let ret = Config.removeEditor(ans.name);
+                if (!ret.success) {
+                    return log.red(ret.msg)
+                }
+            },
+            noChoice: () => {
+                log.red('没有可以删除的编辑器')
+            }
+        })
+    })
+
+
+program.command('rm-group')
+    .description('删除配置组合')
+    .action(() => {
+        getGroupChoice({
+            askMsg: '请选择要删除的组合',
+            onChoice(ans) {
+                logFailed(Config.removeGroup(ans.name))
+            }
+        })
+    })
 
 
 program.command('list')
@@ -127,7 +190,7 @@ program.command('list')
         })
         log.blue()
     });
-program.command('config')
+program.command('cfg')
     .description('显示配置文件的数据')
     .action(() => {
         Config.log();

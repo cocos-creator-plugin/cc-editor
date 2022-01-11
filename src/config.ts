@@ -12,7 +12,8 @@ class ConfigData {
     use: { editor: string, project: string } = {
         editor: '',
         project: '',
-    }
+    };
+    groups: Array<{ name: string, editor: string, project: string }> = [];
     debug: boolean = true;
     brk: boolean = false;
     port: number = 2021;
@@ -21,6 +22,50 @@ class ConfigData {
 
 class Config {
     data: ConfigData = new ConfigData();
+
+    addGroup(name: string, editor: string, project: string) {
+        let success = true, msg = '';
+        if (!this.data.groups.find(el => el.name === name)) {
+            this.data.groups.push({
+                name,
+                editor,
+                project,
+            })
+            this.save();
+        } else {
+            success = false
+            msg = `已经存在组合[${name}]`
+        }
+        return { success, msg };
+    }
+
+    useGroup(name: string) {
+        let success = true, msg = '';
+        let ret = this.data.groups.find(el => el.name === name)
+        if (ret) {
+            this.data.use.editor = ret.editor;
+            this.data.use.project = ret.project;
+            this.save();
+        } else {
+            success = false;
+            msg = '无法找到组合配置项！'
+        }
+        return { success, msg };
+    }
+
+    removeGroup(name: string) {
+        let success = true, msg = '';
+
+        const index = this.data.groups.findIndex(el => el.name === name);
+        if (index === -1) {
+            success = false;
+            msg = '未找到组合，删除失败'
+        } else {
+            this.data.groups.splice(index, 1);
+            this.save();
+        }
+        return { success, msg };
+    }
 
     setPort(port: number) {
         this.data.port = port || this.data.port;
@@ -49,7 +94,7 @@ class Config {
         FsExtra.writeJSONSync(FilePath, this.data)
     }
 
-    getCurrentEditorPath():string|null {
+    getCurrentEditorPath(): string | null {
         const { project, editor } = this.data.use;
         const ret = this.data.editors.find(el => el.name === editor)
         if (ret && ret.path) {
@@ -96,6 +141,10 @@ class Config {
             msg = '未找到项目配置，删除失败 ';
         } else {
             this.data.projects.splice(index, 1);
+            if (this.data.use.project === projectPath) {
+                this.data.use.project = '';
+            }
+            this.save();
         }
         return { success, msg };
     }
@@ -128,6 +177,22 @@ class Config {
         return { success, msg };
     }
 
+    removeEditor(name: string) {
+        let success = true, msg = '';
+        const index = this.data.editors.findIndex(el => el.name === name);
+        if (index === -1) {
+            success = false;
+            msg = '未找到编辑器配置，删除失败';
+        } else {
+            this.data.editors.splice(index, 1)
+            if (name === this.data.use.editor) {
+                this.data.use.editor = ''
+            }
+            this.save();
+        }
+        return { success, msg };
+    }
+
     log() {
         log.blue(`config file path: ${FilePath}`)
         log.green(JSON.stringify(this.data, null, 2))
@@ -139,4 +204,4 @@ class Config {
     }
 }
 
-export default   new Config();
+export default new Config();
