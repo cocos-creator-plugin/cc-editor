@@ -9,6 +9,7 @@ const commander_1 = require("commander");
 const config_1 = __importDefault(require("./config"));
 const log_1 = __importDefault(require("./log"));
 const run_1 = __importDefault(require("./run"));
+const build_1 = __importDefault(require("./build"));
 const util_1 = require("./util");
 commander_1.program
     .version('0.0.1')
@@ -106,7 +107,7 @@ commander_1.program.command('use-project')
     });
 });
 commander_1.program.command('use-group')
-    .description('')
+    .description('使用组合快速切换配置')
     .action(() => {
     (0, choice_1.getGroupChoice)({
         askMsg: '请选择要使用的组合',
@@ -192,5 +193,32 @@ commander_1.program.command('run')
         return log_1.default.red(ret.msg);
     }
     (0, run_1.default)();
+});
+commander_1.program.command('build')
+    .description('构建项目')
+    .action(() => {
+    (0, build_1.default)();
+});
+commander_1.program.command('add-build-copy')
+    .description('设置完成构建后的copy文件夹')
+    .argument('dir')
+    .action((dir) => {
+    const ret = config_1.default.addBuildCopyDir(dir);
+    if (!ret.success) {
+        return log_1.default.red(ret.msg);
+    }
+});
+commander_1.program.command('rm-build-copy')
+    .description('删除完成构建后的copy文件夹')
+    .action(() => {
+    (0, choice_1.getBuildCopyToChoice)({
+        askMsg: '请选择要删除的copy文件夹',
+        onChoice(ans) {
+            config_1.default.removeBuildCopyDir(ans.name);
+        },
+        noChoice() {
+            log_1.default.red('没有可以删除的文件夹');
+        }
+    });
 });
 commander_1.program.parse(process.argv);

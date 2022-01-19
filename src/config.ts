@@ -3,6 +3,7 @@ import * as Path from 'path'
 import * as FsExtra from 'fs-extra'
 import OsEnv from 'osenv'
 import log from './log'
+import * as Fs from 'fs';
 
 const FilePath = Path.join(OsEnv.home(), 'cc-editor.json')
 
@@ -17,6 +18,9 @@ class ConfigData {
     debug: boolean = true;
     brk: boolean = false;
     port: number = 2021;
+    buildAfter: { copyTo: string[] } = {
+        copyTo: [],
+    }
 }
 
 
@@ -191,6 +195,26 @@ class Config {
             this.save();
         }
         return { success, msg };
+    }
+
+    addBuildCopyDir(dir: string) {
+        let success = true, msg = '';
+        if (Fs.existsSync(dir)) {
+            this.data.buildAfter.copyTo.push(dir);
+            this.save();
+        } else {
+            success = false;
+            msg = `copy目录不存在: ${dir}`
+        }
+        return { success, msg };
+    }
+
+    removeBuildCopyDir(dir: string) {
+        let index = this.data.buildAfter.copyTo.findIndex(el => el === dir);
+        if (index !== -1) {
+            this.data.buildAfter.copyTo.splice(index, 1);
+            this.save();
+        }
     }
 
     log() {

@@ -1,5 +1,6 @@
 import Config from './config'
 import inquirer from 'inquirer'
+import * as child_process from 'child_process';
 
 export interface Choices {
     name: string;
@@ -60,4 +61,11 @@ export function getGroupChoice(options: ChoiceOptions) {
         }
     })
     ask(choices, options);
+}
+
+export function getBuildCopyToChoice(options: ChoiceOptions) {
+    const choice = Config.data.buildAfter.copyTo.map(item => {
+        return { name: item, value: item }
+    })
+    ask(choice, options);
 }

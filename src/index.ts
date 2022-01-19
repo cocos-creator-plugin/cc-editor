@@ -1,5 +1,5 @@
 #! /usr/bin/env node
-import { getEditorChoice, getGroupChoice, getProjectChoice } from "./choice"
+import { getBuildCopyToChoice, getEditorChoice, getGroupChoice, getProjectChoice } from "./choice"
 
 import * as Fs from 'fs'
 import { program } from 'commander'
@@ -7,6 +7,7 @@ import Config from './config'
 import chalk from 'chalk'
 import log from './log'
 import Run from './run'
+import Build from './build'
 import  inquirer = require('inquirer')
 import { logFailed } from './util';
 
@@ -111,7 +112,7 @@ program.command('use-project')
         })
     })
 program.command('use-group')
-    .description('')
+    .description('使用组合快速切换配置')
     .action(() => {
         getGroupChoice({
             askMsg: '请选择要使用的组合',
@@ -205,7 +206,35 @@ program.command('run')
         }
         Run()
     })
+program.command('build')
+    .description('构建项目')
+    .action(() => {
+        Build();
+    })
 
+program.command('add-build-copy')
+    .description('设置完成构建后的copy文件夹')
+    .argument('dir')
+    .action((dir) => {
+        const ret = Config.addBuildCopyDir(dir);
+        if (!ret.success) {
+            return log.red(ret.msg)
+        }
+    })
+
+program.command('rm-build-copy')
+    .description('删除完成构建后的copy文件夹')
+    .action(() => {
+        getBuildCopyToChoice({
+            askMsg: '请选择要删除的copy文件夹',
+            onChoice(ans) {
+                Config.removeBuildCopyDir(ans.name);
+            },
+            noChoice() {
+                log.red('没有可以删除的文件夹');
+            }
+        })
+    })
 
 program.parse(process.argv);
 

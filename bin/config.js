@@ -26,6 +26,7 @@ const Path = __importStar(require("path"));
 const FsExtra = __importStar(require("fs-extra"));
 const osenv_1 = __importDefault(require("osenv"));
 const log_1 = __importDefault(require("./log"));
+const Fs = __importStar(require("fs"));
 const FilePath = Path.join(osenv_1.default.home(), 'cc-editor.json');
 class ConfigData {
     constructor() {
@@ -39,6 +40,9 @@ class ConfigData {
         this.debug = true;
         this.brk = false;
         this.port = 2021;
+        this.buildAfter = {
+            copyTo: [],
+        };
     }
 }
 class Config {
@@ -206,6 +210,25 @@ class Config {
             this.save();
         }
         return { success, msg };
+    }
+    addBuildCopyDir(dir) {
+        let success = true, msg = '';
+        if (Fs.existsSync(dir)) {
+            this.data.buildAfter.copyTo.push(dir);
+            this.save();
+        }
+        else {
+            success = false;
+            msg = `copy目录不存在: ${dir}`;
+        }
+        return { success, msg };
+    }
+    removeBuildCopyDir(dir) {
+        let index = this.data.buildAfter.copyTo.findIndex(el => el === dir);
+        if (index !== -1) {
+            this.data.buildAfter.copyTo.splice(index, 1);
+            this.save();
+        }
     }
     log() {
         log_1.default.blue(`config file path: ${FilePath}`);

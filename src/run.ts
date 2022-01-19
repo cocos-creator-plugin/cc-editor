@@ -6,24 +6,17 @@ import log from './log'
 import open from 'open'
 import plist from 'plist'
 import * as Fs from 'fs'
+import { getEditorRealPath, getEditorVersion } from './util';
 
 export default () => {
     const { project } = Config.data.use;
     const { debug, port, brk } = Config.data;
     const rootPath = Config.getCurrentEditorPath();
-    let editorPath = rootPath;
-    let version = '2.4.7';
-    if (rootPath && OS.platform() === 'darwin') {
-        editorPath = Path.join(rootPath, 'Contents/MacOS/CocosCreator')
-        const plistFile = Path.join(rootPath, 'Contents/Info.plist');
-        const ret = plist.parse(Fs.readFileSync(plistFile, 'utf-8'))
-        if (ret) {
-            // @ts-ignore
-            version = ret.CFBundleVersion || ret.CFBundleShortVersionString;
-        }
-    } else {
-        // todo windows
+    if (!rootPath) {
+        return;
     }
+    const editorPath = getEditorRealPath(rootPath);
+    let version = getEditorVersion(rootPath);
     const projectParam = version.startsWith('2.') ? 'path' : 'project'
     let cmd = `${editorPath} --${projectParam} ${project}`
     if (debug) {

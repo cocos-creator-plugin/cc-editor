@@ -1,53 +1,22 @@
 "use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const execa_1 = __importDefault(require("execa"));
-const os_1 = __importDefault(require("os"));
 const config_1 = __importDefault(require("./config"));
-const Path = __importStar(require("path"));
 const log_1 = __importDefault(require("./log"));
-const plist_1 = __importDefault(require("plist"));
-const Fs = __importStar(require("fs"));
+const util_1 = require("./util");
 exports.default = () => {
     var _a;
     const { project } = config_1.default.data.use;
     const { debug, port, brk } = config_1.default.data;
     const rootPath = config_1.default.getCurrentEditorPath();
-    let editorPath = rootPath;
-    let version = '2.4.7';
-    if (rootPath && os_1.default.platform() === 'darwin') {
-        editorPath = Path.join(rootPath, 'Contents/MacOS/CocosCreator');
-        const plistFile = Path.join(rootPath, 'Contents/Info.plist');
-        const ret = plist_1.default.parse(Fs.readFileSync(plistFile, 'utf-8'));
-        if (ret) {
-            // @ts-ignore
-            version = ret.CFBundleVersion || ret.CFBundleShortVersionString;
-        }
+    if (!rootPath) {
+        return;
     }
-    else {
-        // todo windows
-    }
+    const editorPath = (0, util_1.getEditorRealPath)(rootPath);
+    let version = (0, util_1.getEditorVersion)(rootPath);
     const projectParam = version.startsWith('2.') ? 'path' : 'project';
     let cmd = `${editorPath} --${projectParam} ${project}`;
     if (debug) {
