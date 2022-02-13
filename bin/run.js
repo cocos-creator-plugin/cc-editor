@@ -4,9 +4,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const execa_1 = __importDefault(require("execa"));
+const os_1 = __importDefault(require("os"));
 const config_1 = __importDefault(require("./config"));
 const log_1 = __importDefault(require("./log"));
 const util_1 = require("./util");
+const child_process_1 = require("child_process");
 exports.default = () => {
     var _a;
     const { project } = config_1.default.data.use;
@@ -28,7 +30,7 @@ exports.default = () => {
         }
     }
     log_1.default.blue(cmd);
-    const ret = execa_1.default.command(cmd);
+    const ret = os_1.default.platform() === 'win32' ? (0, child_process_1.exec)(cmd) : execa_1.default.command(cmd);
     (_a = ret.stdout) === null || _a === void 0 ? void 0 : _a.on('data', (data) => {
         console.log(data.toString());
     });
