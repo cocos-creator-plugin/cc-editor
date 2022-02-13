@@ -18,7 +18,7 @@ exports.default = () => {
     const editorPath = (0, util_1.getEditorRealPath)(rootPath);
     let version = (0, util_1.getEditorVersion)(rootPath);
     const projectParam = version.startsWith('2.') ? 'path' : 'project';
-    let cmd = `${editorPath} --${projectParam} ${project}`;
+    let cmd = `${editorPath} --nologin --${projectParam} ${project}`;
     if (debug) {
         if (brk) {
             cmd += ` --inspect-brk=${port}`;
