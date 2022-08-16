@@ -7,8 +7,7 @@
     "cce": "./bin/index.js"
   },
   "scripts": {
-    "build-watch": "tsc --watch",
-    "test": "./bin/index.js run"
+    "build-watch": "tsc --watch"
   },
   "repository": {
     "type": "git",
