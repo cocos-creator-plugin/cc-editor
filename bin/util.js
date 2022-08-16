@@ -9,6 +9,7 @@ const os_1 = __importDefault(require("os"));
 const path_1 = __importDefault(require("path"));
 const plist_1 = __importDefault(require("plist"));
 const fs_1 = __importDefault(require("fs"));
+const win_version_info_1 = __importDefault(require("win-version-info"));
 function isMac() {
     return os_1.default.platform() === 'darwin';
 }
@@ -23,9 +24,8 @@ function getEditorRealPath(rootPath) {
         return path_1.default.join(rootPath, 'Contents/MacOS/CocosCreator');
     }
     else {
-        // todo 适配Windows
+        return path_1.default.join(rootPath, 'CocosCreator.exe');
     }
-    return rootPath;
 }
 exports.getEditorRealPath = getEditorRealPath;
 function getEditorVersion(rootPath) {
@@ -39,7 +39,10 @@ function getEditorVersion(rootPath) {
         }
     }
     else {
-        // todo windows
+        // 1. 生成专门的exe，然后使用child_process获取信息
+        // 2. 使用node-gyp
+        const exePath = getEditorRealPath(rootPath);
+        return (0, win_version_info_1.default)(exePath).FileVersion || version;
     }
     return version;
 }

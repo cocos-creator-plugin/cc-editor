@@ -1,13 +1,14 @@
 {
   "name": "@xuyanfeng/cc-editor",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "",
   "bin": {
     "cc-editor": "./bin/index.js",
     "cce": "./bin/index.js"
   },
   "scripts": {
-    "build-watch": "tsc --watch"
+    "build-watch": "tsc --watch",
+    "test": "./bin/index.js run"
   },
   "repository": {
     "type": "git",
@@ -25,6 +26,7 @@
     "@types/node": "^16.11.12",
     "@types/osenv": "^0.1.1",
     "@types/plist": "^3.0.2",
+    "@types/win-version-info": "^3.1.1",
     "chalk": "2.4.2",
     "commander": "^8.3.0",
     "execa": "5.1.1",
@@ -35,6 +37,7 @@
     "osenv": "^0.1.5",
     "plist": "^3.0.4",
     "portfinder": "^1.0.28",
-    "printf": "^0.6.1"
+    "printf": "^0.6.1",
+    "win-version-info": "^6.0.1"
   }
 }
