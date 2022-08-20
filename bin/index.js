@@ -50,9 +50,9 @@ commander_1.program.command('add-editor')
     .argument('editor-name', '编辑器名字')
     .argument('editor-path', '编辑器路径')
     .action((name, editorPath) => {
-    const ret = config_1.default.addEditor(name, editorPath);
-    if (!ret.success) {
-        log_1.default.red(ret.msg);
+    const msg = config_1.default.addEditor(name, editorPath);
+    if (msg) {
+        log_1.default.red(msg);
     }
 });
 commander_1.program.command('add-group')

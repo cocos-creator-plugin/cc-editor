@@ -42,7 +42,7 @@ exports.default = () => {
     if (!rootPath) {
         return;
     }
-    const editorPath = (0, util_1.getEditorRealPath)(rootPath);
+    const editorPath = (0, util_1.getEditorRealExecutePath)(rootPath);
     let version = (0, util_1.getEditorVersion)(rootPath);
     const projectParam = version.startsWith('2.') ? 'path' : 'project';
     // todo 后续开放platform的配置

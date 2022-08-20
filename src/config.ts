@@ -167,18 +167,19 @@ class Config {
         return { success, msg };
     }
 
-    addEditor(name: string, editorPath: string) {
-        let success = true, msg = '';
-        if (FsExtra.existsSync(editorPath)) {
-            if (!this.data.editors.find(el => el.path === editorPath)) {
-                this.data.editors.push({ name, path: editorPath })
-                this.save();
-            }
-        } else {
-            success = false;
-            msg = `无效的路径: ${editorPath}`
+    addEditor(name: string, editorPath: string): string {
+        if (this.data.editors.find(el => el.name === name)) {
+            return `重复的编辑器名字：${name}`
         }
-        return { success, msg };
+        if (!FsExtra.existsSync(editorPath)) {
+            return `无效的编辑器路径: ${editorPath}`
+        }
+        if (this.data.editors.find(el => el.path === editorPath)) {
+            return `重复的编辑器路径：${editorPath}`;
+        }
+        this.data.editors.push({ name, path: editorPath })
+        this.save();
+        return '';
     }
 
     removeEditor(name: string) {

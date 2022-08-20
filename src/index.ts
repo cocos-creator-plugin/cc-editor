@@ -53,9 +53,9 @@ program.command('add-editor')
     .argument('editor-name', '编辑器名字')
     .argument('editor-path', '编辑器路径')
     .action((name, editorPath) => {
-        const ret = Config.addEditor(name, editorPath);
-        if (!ret.success) {
-            log.red(ret.msg)
+        const msg = Config.addEditor(name, editorPath);
+        if (msg) {
+            log.red(msg)
         }
     })
 program.command('add-group')

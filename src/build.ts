@@ -1,5 +1,5 @@
 import Config from './config';
-import { getEditorRealPath, getEditorVersion } from './util';
+import { getEditorRealExecutePath, getEditorVersion } from './util';
 import log from './log';
 import Execa from 'execa';
 import * as  FsExtra from 'fs-extra'
@@ -14,7 +14,7 @@ export default () => {
     if (!rootPath) {
         return;
     }
-    const editorPath = getEditorRealPath(rootPath);
+    const editorPath = getEditorRealExecutePath(rootPath);
     let version = getEditorVersion(rootPath);
     const projectParam = version.startsWith('2.') ? 'path' : 'project'
 

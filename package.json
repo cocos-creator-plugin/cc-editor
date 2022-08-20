@@ -1,13 +1,14 @@
 {
   "name": "@xuyanfeng/cc-editor",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "",
   "bin": {
     "cc-editor": "./bin/index.js",
     "cce": "./bin/index.js"
   },
   "scripts": {
-    "build-watch": "tsc --watch"
+    "build-watch": "tsc --watch",
+    "test": "node ./bin/index.js add-editor run"
   },
   "repository": {
     "type": "git",

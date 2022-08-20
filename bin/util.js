@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getEditorVersion = exports.getEditorRealPath = exports.logFailed = void 0;
+exports.getEditorVersion = exports.getEditorRealExecutePath = exports.logFailed = void 0;
 const log_1 = __importDefault(require("./log"));
 const os_1 = __importDefault(require("os"));
 const path_1 = __importDefault(require("path"));
@@ -19,18 +19,27 @@ function logFailed(ret) {
     }
 }
 exports.logFailed = logFailed;
-function getEditorRealPath(rootPath) {
-    if (isMac()) {
-        return path_1.default.join(rootPath, 'Contents/MacOS/CocosCreator');
+function getEditorRealExecutePath(rootPath) {
+    const state = fs_1.default.statSync(rootPath);
+    if (state.isDirectory()) {
+        if (isMac()) {
+            return path_1.default.join(rootPath, 'Contents/MacOS/CocosCreator');
+        }
+        else {
+            return path_1.default.join(rootPath, 'CocosCreator.exe');
+        }
     }
     else {
-        return path_1.default.join(rootPath, 'CocosCreator.exe');
+        return rootPath;
     }
 }
-exports.getEditorRealPath = getEditorRealPath;
+exports.getEditorRealExecutePath = getEditorRealExecutePath;
 function getEditorVersion(rootPath) {
     let version = '2.4.7';
-    if (rootPath && isMac()) {
+    if (!rootPath) {
+        return version;
+    }
+    if (isMac()) {
         const plistFile = path_1.default.join(rootPath, 'Contents/Info.plist');
         const ret = plist_1.default.parse(fs_1.default.readFileSync(plistFile, 'utf-8'));
         if (ret) {
@@ -41,8 +50,8 @@ function getEditorVersion(rootPath) {
     else {
         // 1. 生成专门的exe，然后使用child_process获取信息
         // 2. 使用node-gyp
-        const exePath = getEditorRealPath(rootPath);
-        return (0, win_version_info_1.default)(exePath).FileVersion || version;
+        const exePath = getEditorRealExecutePath(rootPath);
+        version = (0, win_version_info_1.default)(exePath).FileVersion || version;
     }
     return version;
 }

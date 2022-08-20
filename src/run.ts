@@ -6,7 +6,7 @@ import log from './log';
 import open from 'open';
 import plist from 'plist';
 import * as Fs from 'fs';
-import { getEditorRealPath, getEditorVersion } from './util';
+import { getEditorRealExecutePath, getEditorVersion } from './util';
 import { exec } from 'child_process';
 
 export default () => {
@@ -16,7 +16,7 @@ export default () => {
     if (!rootPath) {
         return;
     }
-    const editorPath = getEditorRealPath(rootPath);
+    const editorPath = getEditorRealExecutePath(rootPath);
     let version = getEditorVersion(rootPath);
     const projectParam = version.startsWith('2.') ? 'path' : 'project';
     let cmd = `${editorPath} --nologin --${projectParam} ${project}`;
