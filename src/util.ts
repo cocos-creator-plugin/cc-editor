@@ -3,6 +3,7 @@ import OS from 'os';
 import Path from 'path';
 import plist from 'plist';
 import Fs from 'fs';
+import VersionInfo from 'win-version-info'
 
 function isMac() {
     return OS.platform() === 'darwin'
@@ -18,9 +19,8 @@ export function getEditorRealPath(rootPath: string) {
     if (isMac()) {
         return Path.join(rootPath, 'Contents/MacOS/CocosCreator')
     } else {
-        // todo 适配Windows
+        return Path.join(rootPath, 'CocosCreator.exe')
     }
-    return  rootPath;
 }
 
 export function getEditorVersion(rootPath: string) {
@@ -33,7 +33,10 @@ export function getEditorVersion(rootPath: string) {
             version = ret.CFBundleVersion || ret.CFBundleShortVersionString;
         }
     } else {
-        // todo windows
+        // 1. 生成专门的exe，然后使用child_process获取信息
+        // 2. 使用node-gyp
+        const exePath = getEditorRealPath(rootPath)
+        return VersionInfo(exePath).FileVersion || version;
     }
     return version;
 }
