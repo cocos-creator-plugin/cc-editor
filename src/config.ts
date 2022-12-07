@@ -224,6 +224,7 @@ class Config {
     }
 
     checkRun() {
+        // todo 待实现
         let success = true, msg = '';
         return { success, msg }
     }
