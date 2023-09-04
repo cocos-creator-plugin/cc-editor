@@ -31,6 +31,7 @@ const FsExtra = __importStar(require("fs-extra"));
 const osenv_1 = __importDefault(require("osenv"));
 const log_1 = __importDefault(require("./log"));
 const Fs = __importStar(require("fs"));
+const fs_1 = require("fs");
 const FilePath = Path.join(osenv_1.default.home(), 'cc-editor.json');
 class ConfigData {
     constructor() {
@@ -50,12 +51,65 @@ class ConfigData {
     }
 }
 class Config {
-    constructor() {
-        this.data = new ConfigData();
-        if (!FsExtra.existsSync(FilePath)) {
-            FsExtra.writeJSONSync(FilePath, {});
+    restInvalidConfig() {
+        let change = false;
+        // 检查编辑器是否有效
+        const invalidEditors = [];
+        let { editors, projects } = this.data;
+        for (let i = 0; i < editors.length;) {
+            const editor = editors[i];
+            if (!(0, fs_1.existsSync)(editor.path)) {
+                change = true;
+                log_1.default.red(`find invalid editor: ${JSON.stringify(editor)}`);
+                invalidEditors.push(editor);
+                this.data.editors.splice(i, 1);
+            }
+            else {
+                i++;
+            }
         }
-        this.data = Object.assign(this.data, FsExtra.readJSONSync(FilePath));
+        // 检查项目是否有效
+        const invalidProjects = [];
+        for (let i = 0; i < projects.length;) {
+            const project = projects[i];
+            if (!(0, fs_1.existsSync)(project)) {
+                change = true;
+                log_1.default.red(`find invalid project:${project}`);
+                invalidProjects.push(project);
+                this.data.projects.splice(i, 1);
+            }
+            else {
+                i++;
+            }
+        }
+        // 重置与之关联的use
+        const { editor, project } = this.data.use;
+        const useEditorInvalid = invalidEditors.find(el => el.name === editor);
+        const useProjectInvalid = invalidProjects.find(el => el === project);
+        if (useEditorInvalid || useProjectInvalid) {
+            change = true;
+            this.data.use.editor = "";
+            this.data.use.project = "";
+            log_1.default.red(`reset link use editor&project`);
+        }
+        // 删除与之关联的group
+        for (let i = 0; i < this.data.groups.length;) {
+            const group = this.data.groups[i];
+            const { editor, project, name } = group;
+            const useEditorInvalid = invalidEditors.find(el => el.name === editor);
+            const useProjectInvalid = invalidProjects.find(el => el === project);
+            if (useEditorInvalid || useProjectInvalid) {
+                change = true;
+                this.data.groups.splice(i, 1);
+                log_1.default.red(`delete link invalid group:\n${JSON.stringify(group, null, 2)}`);
+            }
+            else {
+                i++;
+            }
+        }
+        if (change) {
+            this.save();
+        }
     }
     addGroup(name, editor, project) {
         let success = true, msg = '';
@@ -113,8 +167,15 @@ class Config {
         log_1.default.green(!!this.data.brk ? '启用brk' : '禁用brk');
         this.save();
     }
+    constructor() {
+        this.data = new ConfigData();
+        if (!FsExtra.existsSync(FilePath)) {
+            FsExtra.writeJSONSync(FilePath, {});
+        }
+        this.data = Object.assign(this.data, FsExtra.readJSONSync(FilePath));
+    }
     save() {
-        FsExtra.writeJSONSync(FilePath, this.data);
+        FsExtra.writeJSONSync(FilePath, this.data, { spaces: 2 });
     }
     getCurrentEditorPath() {
         const { project, editor } = this.data.use;
@@ -155,6 +216,44 @@ class Config {
         }
         return { success, msg };
     }
+    _resetUseByEditor(editorName) {
+        if (this.data.use.editor === editorName) {
+            this.data.use.editor = "";
+            this.data.use.project = "";
+            log_1.default.blue(`reset link use.editor: ${editorName}`);
+        }
+    }
+    _resetUseByProject(project) {
+        if (this.data.use.project === project) {
+            this.data.use.editor = "";
+            this.data.use.project = "";
+            log_1.default.blue(`reset link use.project: ${project}`);
+        }
+    }
+    _deleteGroupByProject(project) {
+        for (let i = 0; i < this.data.groups.length;) {
+            const group = this.data.groups[i];
+            if (group.project === project) {
+                log_1.default.blue(`delete link editor group\n: ${JSON.stringify(group)}`);
+                this.data.groups.splice(i, 1);
+            }
+            else {
+                i++;
+            }
+        }
+    }
+    _deleteGroupByEditor(editor) {
+        for (let i = 0; i < this.data.groups.length;) {
+            const group = this.data.groups[i];
+            if (group.editor === editor) {
+                this.data.groups.splice(i, 1);
+                log_1.default.blue(`delete link editor group\n: ${JSON.stringify(group)}`);
+            }
+            else {
+                i++;
+            }
+        }
+    }
     removeProject(projectPath) {
         let success = true, msg = '';
         const index = this.data.projects.findIndex(el => el === projectPath);
@@ -167,6 +266,8 @@ class Config {
             if (this.data.use.project === projectPath) {
                 this.data.use.project = '';
             }
+            this._resetUseByProject(projectPath);
+            this._deleteGroupByProject(projectPath);
             this.save();
         }
         return { success, msg };
@@ -208,9 +309,8 @@ class Config {
         }
         else {
             this.data.editors.splice(index, 1);
-            if (name === this.data.use.editor) {
-                this.data.use.editor = '';
-            }
+            this._resetUseByEditor(name);
+            this._deleteGroupByEditor(name);
             this.save();
         }
         return { success, msg };
@@ -240,6 +340,16 @@ class Config {
     }
     checkRun() {
         let success = true, msg = '';
+        const { project, editor } = this.data.use;
+        // check project
+        if (!(0, fs_1.existsSync)(project)) {
+            return { success: false, msg: `不存在的项目：${project}，需要重新配置` };
+        }
+        // check editor
+        const editorPath = this.getCurrentEditorPath();
+        if (!editorPath || !(0, fs_1.existsSync)(editorPath)) {
+            return { success: false, msg: `不存在的编辑器：${project}，需要重新配置` };
+        }
         return { success, msg };
     }
 }

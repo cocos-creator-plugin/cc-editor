@@ -1,6 +1,6 @@
 {
   "name": "@xuyanfeng/cc-editor",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "",
   "bin": {
     "cc-editor": "./bin/index.js",
@@ -38,6 +38,8 @@
     "plist": "^3.0.4",
     "portfinder": "^1.0.28",
     "printf": "^0.6.1",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.2.2",
     "win-version-info": "^6.0.1"
   }
 }

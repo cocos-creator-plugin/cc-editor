@@ -8,14 +8,21 @@ import chalk from 'chalk'
 import log from './log'
 import Run from './run'
 import Build from './build'
-import  inquirer = require('inquirer')
+import inquirer = require('inquirer')
 import { logFailed } from './util';
 
 program
     .version('0.0.1')
     .allowUnknownOption(true)
 
+program.command('reset')
+    .description('校验无效的配置，并自动删除重置数据')
+    .action(() => {
+        Config.restInvalidConfig()
+    })
+
 program.command('set-port')
+    .description('设置主进程调试端口')
     .argument('port', '调试端口')
     .action((port: string) => {
         let p = 0;
@@ -28,12 +35,14 @@ program.command('set-port')
     })
 
 program.command('set-debug')
-    .argument('debug', '开启主进程调试')
+    .description("是否开启主进程调试")
+    .argument('debug', 'true启用，否则不启用')
     .action((debug: string) => {
         Config.setDebug(debug.toLowerCase() === 'true')
     })
 program.command('set-brk')
-    .argument('brk', '是否在启动后断点')
+    .description('是否在启动后断点')
+    .argument('brk', 'true启用，否则不启用')
     .action((brk) => {
         Config.setBrk(brk.toLowerCase() === 'true');
     })

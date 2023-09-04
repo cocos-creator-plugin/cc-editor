@@ -14,7 +14,13 @@ const util_1 = require("./util");
 commander_1.program
     .version('0.0.1')
     .allowUnknownOption(true);
+commander_1.program.command('reset')
+    .description('校验无效的配置，并自动删除重置数据')
+    .action(() => {
+    config_1.default.restInvalidConfig();
+});
 commander_1.program.command('set-port')
+    .description('设置主进程调试端口')
     .argument('port', '调试端口')
     .action((port) => {
     let p = 0;
@@ -27,12 +33,14 @@ commander_1.program.command('set-port')
     config_1.default.setPort(p);
 });
 commander_1.program.command('set-debug')
-    .argument('debug', '开启主进程调试')
+    .description("是否开启主进程调试")
+    .argument('debug', 'true启用，否则不启用')
     .action((debug) => {
     config_1.default.setDebug(debug.toLowerCase() === 'true');
 });
 commander_1.program.command('set-brk')
-    .argument('brk', '是否在启动后断点')
+    .description('是否在启动后断点')
+    .argument('brk', 'true启用，否则不启用')
     .action((brk) => {
     config_1.default.setBrk(brk.toLowerCase() === 'true');
 });

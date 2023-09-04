@@ -32,12 +32,12 @@ cce run
 # 快速切换配置项
 可以将指定的编辑器和项目绑定为一个组合，在不同的组合配置之间快速切换
 
-交互式命令，会从已有的配置中进行选择
+以下交互式命令，会从已有的配置中进行选择
 ```shell
 cce add-group name
 ```
 
-交互式命令，选择并使用已经设置过的组合
+以下交互式命令，选择并使用已经设置过的组合
 ```shell
 cce use-group
 ```
@@ -54,20 +54,20 @@ cce list
 当开发Creator插件时，需要调试主进程，每次都需要添加那些记不住而又不得不输入的调试参数，通过这个cli，可以免去这些烦恼。
 
 - 设置为true后，项目就会开启主进程调试功能
-```shell
-cce set-debug true
-```
+    ```shell
+    cce set-debug true
+    ```
 
 
 - 设置主进程调试的端口
-```shell
-cce set-port 2021
-```
+    ```shell
+    cce set-port 2021
+    ```
  
 - 设置是否在主进程的第一行代码设置断点
-```shell
-cce set-brk true
-```
+    ```shell
+    cce set-brk true
+    ```
 
 
 ## 3.配合cc-plugin，提高插件开发效率
