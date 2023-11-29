@@ -1,6 +1,6 @@
 {
   "name": "@xuyanfeng/cc-editor",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "",
   "bin": {
     "cc-editor": "./bin/index.js",
@@ -8,7 +8,9 @@
   },
   "scripts": {
     "build-watch": "tsc --watch",
-    "test": "node ./bin/index.js add-editor run"
+    "test": "tsc && node ./bin/index.js add-editor run",
+    "test-format": "tsc && node ./bin/index.js format",
+    "publish": "tsc && npm publish"
   },
   "repository": {
     "type": "git",

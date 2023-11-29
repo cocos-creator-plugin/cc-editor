@@ -12,3 +12,4 @@ exports.default = {
         console.log(chalk.blue(str || ''));
     }
 };
+//# sourceMappingURL=log.js.map

@@ -178,13 +178,13 @@ commander_1.program.command('list')
     log_1.default.blue('-- editor --');
     editors.forEach(el => {
         const curFlag = use.editor === el.name ? '*' : '';
-        log_1.default.blue(printf('%-2s %-10s %-s', curFlag, el.name, el.path));
+        log_1.default.blue(printf('%-2s %-10s %-s', curFlag, el.name, (0, util_1.toMyPath)(el.path)));
     });
     log_1.default.blue();
     log_1.default.blue('-- project --');
     projects.forEach(el => {
         const curFlag = use.project === el ? '*' : '';
-        log_1.default.blue(printf('%-2s %-10s', curFlag, el));
+        log_1.default.blue(printf('%-2s %-10s', curFlag, (0, util_1.toMyPath)(el)));
     });
     log_1.default.blue();
 });
@@ -229,4 +229,10 @@ commander_1.program.command('rm-build-copy')
         }
     });
 });
+commander_1.program.command('format')
+    .description('格式化，主要是处理路径')
+    .action(() => {
+    config_1.default.format();
+});
 commander_1.program.parse(process.argv);
+//# sourceMappingURL=index.js.map

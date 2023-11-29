@@ -9,7 +9,8 @@ import log from './log'
 import Run from './run'
 import Build from './build'
 import inquirer = require('inquirer')
-import { logFailed } from './util';
+import { logFailed, toMyPath } from './util';
+import { normalize } from "path"
 
 program
     .version('0.0.1')
@@ -189,14 +190,14 @@ program.command('list')
         log.blue('-- editor --');
         editors.forEach(el => {
             const curFlag = use.editor === el.name ? '*' : '';
-            log.blue(printf('%-2s %-10s %-s', curFlag, el.name, el.path))
+            log.blue(printf('%-2s %-10s %-s', curFlag, el.name, toMyPath(el.path)))
         })
 
         log.blue()
         log.blue('-- project --')
         projects.forEach(el => {
             const curFlag = use.project === el ? '*' : '';
-            log.blue(printf('%-2s %-10s', curFlag, el))
+            log.blue(printf('%-2s %-10s', curFlag, toMyPath(el)))
         })
         log.blue()
     });
@@ -244,7 +245,11 @@ program.command('rm-build-copy')
             }
         })
     })
-
+program.command('format')
+    .description('格式化，主要是处理路径')
+    .action(() => {
+        Config.format()
+    })
 program.parse(process.argv);
 
 

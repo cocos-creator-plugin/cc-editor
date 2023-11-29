@@ -1,6 +1,6 @@
 import log from './log';
 import OS from 'os';
-import Path from 'path';
+import Path, { normalize, sep } from 'path';
 import plist from 'plist';
 import Fs from 'fs';
 import VersionInfo from 'win-version-info'
@@ -47,4 +47,7 @@ export function getEditorVersion(rootPath: string) {
         version = VersionInfo(exePath).FileVersion || version;
     }
     return version;
+}
+export function toMyPath(v: string): string {
+    return normalize(v).split(sep).join('/');
 }

@@ -32,7 +32,8 @@ const osenv_1 = __importDefault(require("osenv"));
 const log_1 = __importDefault(require("./log"));
 const Fs = __importStar(require("fs"));
 const fs_1 = require("fs");
-const FilePath = Path.join(osenv_1.default.home(), 'cc-editor.json');
+const util_1 = require("./util");
+const FilePath = (0, util_1.toMyPath)(Path.join(osenv_1.default.home(), 'cc-editor.json'));
 class ConfigData {
     constructor() {
         this.editors = [];
@@ -154,6 +155,22 @@ class Config {
         }
         return { success, msg };
     }
+    format() {
+        const { use, projects, groups, editors } = this.data;
+        if (use.project) {
+            use.project = (0, util_1.toMyPath)(use.project);
+        }
+        for (let i = 0; i < groups.length; i++) {
+            groups[i].project = (0, util_1.toMyPath)(groups[i].project);
+        }
+        for (let i = 0; i < editors.length; i++) {
+            editors[i].path = (0, util_1.toMyPath)(editors[i].path);
+        }
+        for (let i = 0; i < projects.length; i++) {
+            projects[i] = (0, util_1.toMyPath)(projects[i]);
+        }
+        this.save();
+    }
     setPort(port) {
         this.data.port = port || this.data.port;
         this.save();
@@ -273,6 +290,7 @@ class Config {
         return { success, msg };
     }
     addProject(projectPath) {
+        projectPath = (0, util_1.toMyPath)(projectPath);
         let success = true, msg = '';
         if (FsExtra.existsSync(projectPath)) {
             if (!this.data.projects.find(el => el === projectPath)) {
@@ -287,6 +305,7 @@ class Config {
         return { success, msg };
     }
     addEditor(name, editorPath) {
+        editorPath = (0, util_1.toMyPath)(editorPath);
         if (this.data.editors.find(el => el.name === name)) {
             return `重复的编辑器名字：${name}`;
         }
@@ -354,3 +373,4 @@ class Config {
     }
 }
 exports.default = new Config();
+//# sourceMappingURL=config.js.map

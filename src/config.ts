@@ -5,8 +5,9 @@ import OsEnv from 'osenv'
 import log from './log'
 import * as Fs from 'fs';
 import { existsSync } from 'fs'
+import { toMyPath } from './util'
 
-const FilePath = Path.join(OsEnv.home(), 'cc-editor.json')
+const FilePath = toMyPath(Path.join(OsEnv.home(), 'cc-editor.json'))
 
 class ConfigData {
     editors: Array<{ name: string, path: string }> = [];
@@ -128,7 +129,22 @@ class Config {
         }
         return { success, msg };
     }
-
+    format() {
+        const { use, projects, groups, editors } = this.data;
+        if (use.project) {
+            use.project = toMyPath(use.project);
+        }
+        for (let i = 0; i < groups.length; i++) {
+            groups[i].project = toMyPath(groups[i].project);
+        }
+        for (let i = 0; i < editors.length; i++) {
+            editors[i].path = toMyPath(editors[i].path);
+        }
+        for (let i = 0; i < projects.length; i++) {
+            projects[i] = toMyPath(projects[i])
+        }
+        this.save();
+    }
     setPort(port: number) {
         this.data.port = port || this.data.port;
         this.save();
@@ -249,6 +265,7 @@ class Config {
     }
 
     addProject(projectPath: string) {
+        projectPath = toMyPath(projectPath)
         let success = true, msg = '';
         if (FsExtra.existsSync(projectPath)) {
             if (!this.data.projects.find(el => el === projectPath)) {
@@ -263,6 +280,7 @@ class Config {
     }
 
     addEditor(name: string, editorPath: string): string {
+        editorPath = toMyPath(editorPath)
         if (this.data.editors.find(el => el.name === name)) {
             return `重复的编辑器名字：${name}`
         }
