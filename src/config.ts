@@ -9,6 +9,20 @@ import { toMyPath } from './util'
 
 const FilePath = toMyPath(Path.join(OsEnv.home(), 'cc-editor.json'))
 
+export interface Group {
+    /**
+     * 组的名字
+     */
+    name: string;
+    /**
+     * 组使用的编辑器别名
+     */
+    editor: string;
+    /**
+     * 组使用的项目路径
+     */
+    project: string;
+}
 class ConfigData {
     editors: Array<{ name: string, path: string }> = [];
     projects: string[] = [];
@@ -16,7 +30,7 @@ class ConfigData {
         editor: '',
         project: '',
     };
-    groups: Array<{ name: string, editor: string, project: string }> = [];
+    groups: Array<Group> = [];
     debug: boolean = true;
     brk: boolean = false;
     port: number = 2021;

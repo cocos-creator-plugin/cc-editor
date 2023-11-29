@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getBuildCopyToChoice = exports.getGroupChoice = exports.getProjectChoice = exports.getEditorChoice = void 0;
 const config_1 = __importDefault(require("./config"));
 const inquirer_1 = __importDefault(require("inquirer"));
+const printf_1 = __importDefault(require("printf"));
 function ask(choices, options) {
     const { askMsg, noChoice, onChoice } = options;
     if (choices.length > 0) {
@@ -45,15 +46,35 @@ function getProjectChoice(options) {
 }
 exports.getProjectChoice = getProjectChoice;
 function getGroupChoice(options) {
-    const choices = config_1.default.data.groups.map(group => {
+    const { groups, use } = config_1.default.data;
+    let maxLenName = 0;
+    let maxLenEditor = 0;
+    let maxLenProject = 0;
+    groups.map(group => {
+        maxLenName = Math.max(maxLenName, group.name.length);
+        maxLenEditor = Math.max(maxLenEditor, group.editor.length);
+        maxLenProject = Math.max(maxLenProject, group.project.length);
+    });
+    const space = 2;
+    maxLenEditor += space;
+    maxLenName += space;
+    maxLenProject += space;
+    const choices = groups.map(group => {
+        const flag = groupIsUse(group) ? "* " : "  ";
+        const key = `${flag}%-${maxLenName}s %${maxLenEditor}s / %-${maxLenProject}s`;
+        const value = (0, printf_1.default)(key, group.name, group.editor, group.project);
         return {
-            name: `${group.name} [${group.editor}]/[${group.project}]`,
+            name: value,
             value: group.name,
         };
     });
     ask(choices, options);
 }
 exports.getGroupChoice = getGroupChoice;
+function groupIsUse(group) {
+    const { use } = config_1.default.data;
+    return use.editor === group.editor && use.project === group.project;
+}
 function getBuildCopyToChoice(options) {
     const choice = config_1.default.data.buildAfter.copyTo.map(item => {
         return { name: item, value: item };

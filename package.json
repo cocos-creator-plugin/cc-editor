@@ -10,6 +10,7 @@
     "build-watch": "tsc --watch",
     "test": "tsc && node ./bin/index.js add-editor run",
     "test-format": "tsc && node ./bin/index.js format",
+    "test-use-group": "tsc && node ./bin/index.js use-group",
     "publish": "tsc && npm publish"
   },
   "repository": {
