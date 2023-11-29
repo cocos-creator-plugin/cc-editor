@@ -33,6 +33,7 @@ const log_1 = __importDefault(require("./log"));
 const Fs = __importStar(require("fs"));
 const fs_1 = require("fs");
 const util_1 = require("./util");
+const const_1 = require("./const");
 const FilePath = (0, util_1.toMyPath)(Path.join(osenv_1.default.home(), 'cc-editor.json'));
 class ConfigData {
     constructor() {
@@ -46,6 +47,7 @@ class ConfigData {
         this.debug = true;
         this.brk = false;
         this.port = 2021;
+        this.ccp = { V2: '', V3: '' };
         this.buildAfter = {
             copyTo: [],
         };
@@ -111,6 +113,28 @@ class Config {
         if (change) {
             this.save();
         }
+    }
+    get ccpFileName() {
+        return "cc-plugin.json";
+    }
+    ccpData() {
+        const { V2, V3 } = this.data.ccp;
+        return JSON.stringify({ v2: V2, v3: V3 }, null, 2);
+    }
+    ccpSet(v2, v3) {
+        const ret = new const_1.Result();
+        if (!(0, fs_1.existsSync)(v2)) {
+            ret.failed(`not exists: ${v2}`);
+            return ret;
+        }
+        if (!(0, fs_1.existsSync)(v3)) {
+            ret.failed(`not exists: ${v3}`);
+            return ret;
+        }
+        this.data.ccp.V2 = (0, util_1.toMyPath)(v2);
+        this.data.ccp.V3 = (0, util_1.toMyPath)(v3);
+        this.save();
+        return ret;
     }
     addGroup(name, editor, project) {
         let success = true, msg = '';

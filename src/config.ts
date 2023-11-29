@@ -6,6 +6,7 @@ import log from './log'
 import * as Fs from 'fs';
 import { existsSync } from 'fs'
 import { toMyPath } from './util'
+import { Result } from './const'
 
 const FilePath = toMyPath(Path.join(OsEnv.home(), 'cc-editor.json'))
 
@@ -23,6 +24,16 @@ export interface Group {
      */
     project: string;
 }
+export interface CCP_Json {
+    /**
+     * cc-plugin输出creator v2版本的项目目录
+     */
+    V2: string;
+    /**
+     * cc-plugin输出creator v3版本的项目目录
+     */
+    V3: string;
+}
 class ConfigData {
     editors: Array<{ name: string, path: string }> = [];
     projects: string[] = [];
@@ -34,6 +45,7 @@ class ConfigData {
     debug: boolean = true;
     brk: boolean = false;
     port: number = 2021;
+    ccp: CCP_Json = { V2: '', V3: '' };
     buildAfter: { copyTo: string[] } = {
         copyTo: [],
     }
@@ -99,6 +111,28 @@ class Config {
         if (change) {
             this.save();
         }
+    }
+    get ccpFileName() {
+        return "cc-plugin.json";
+    }
+    ccpData(): string {
+        const { V2, V3 } = this.data.ccp;
+        return JSON.stringify({ v2: V2, v3: V3 }, null, 2);
+    }
+    ccpSet(v2: string, v3: string): Result {
+        const ret = new Result();
+        if (!existsSync(v2)) {
+            ret.failed(`not exists: ${v2}`);
+            return ret;
+        }
+        if (!existsSync(v3)) {
+            ret.failed(`not exists: ${v3}`);
+            return ret;
+        }
+        this.data.ccp.V2 = toMyPath(v2);
+        this.data.ccp.V3 = toMyPath(v3);
+        this.save();
+        return ret;
     }
     addGroup(name: string, editor: string, project: string) {
         let success = true, msg = '';

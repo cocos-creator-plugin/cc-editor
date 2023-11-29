@@ -1,16 +1,41 @@
 #! /usr/bin/env node
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const choice_1 = require("./choice");
+const Fs = __importStar(require("fs"));
 const commander_1 = require("commander");
 const config_1 = __importDefault(require("./config"));
 const log_1 = __importDefault(require("./log"));
 const run_1 = __importDefault(require("./run"));
 const build_1 = __importDefault(require("./build"));
 const util_1 = require("./util");
+const path_1 = require("path");
 commander_1.program
     .version('0.0.1')
     .allowUnknownOption(true);
@@ -201,6 +226,21 @@ commander_1.program.command('run')
         return log_1.default.red(ret.msg);
     }
     (0, run_1.default)();
+});
+commander_1.program.command('ccp-set')
+    .description('设置cc-plugin构建的creator插件输出目录')
+    .option('-v2 <string>', 'creator v2 项目目录')
+    .option('-v3 <string>', 'creator v3 项目目录')
+    .action((data) => {
+    config_1.default.ccpSet(data.V2, data.V3).log();
+});
+commander_1.program.command('ccp-config')
+    .description(`配置当前目录的${config_1.default.ccpFileName}`)
+    .action(() => {
+    const data = config_1.default.ccpData();
+    const curFile = (0, path_1.join)(process.cwd(), config_1.default.ccpFileName);
+    Fs.writeFileSync(curFile, data);
+    log_1.default.green(`config ${config_1.default.ccpFileName} successfully`);
 });
 commander_1.program.command('build')
     .description('构建项目')

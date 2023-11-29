@@ -3,14 +3,14 @@ import { getBuildCopyToChoice, getEditorChoice, getGroupChoice, getProjectChoice
 
 import * as Fs from 'fs'
 import { program } from 'commander'
-import Config from './config'
+import Config, { CCP_Json } from './config'
 import chalk from 'chalk'
 import log from './log'
 import Run from './run'
 import Build from './build'
 import inquirer = require('inquirer')
 import { logFailed, toMyPath } from './util';
-import { normalize } from "path"
+import { join, normalize } from "path"
 
 program
     .version('0.0.1')
@@ -215,6 +215,21 @@ program.command('run')
             return log.red(ret.msg)
         }
         Run()
+    })
+program.command('ccp-set')
+    .description('设置cc-plugin构建的creator插件输出目录')
+    .option('-v2 <string>', 'creator v2 项目目录')
+    .option('-v3 <string>', 'creator v3 项目目录')
+    .action((data: CCP_Json) => {
+        Config.ccpSet(data.V2, data.V3).log();
+    })
+program.command('ccp-config')
+    .description(`配置当前目录的${Config.ccpFileName}`)
+    .action(() => {
+        const data = Config.ccpData();
+        const curFile = join(process.cwd(), Config.ccpFileName);
+        Fs.writeFileSync(curFile, data);
+        log.green(`config ${Config.ccpFileName} successfully`);
     })
 program.command('build')
     .description('构建项目')
