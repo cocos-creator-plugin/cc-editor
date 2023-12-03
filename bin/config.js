@@ -163,11 +163,11 @@ class Config {
             if (!this.data.ccp.enabled) {
                 return result;
             }
-            log_1.default.blue(`sync ${this.ccpFileName}`);
+            log_1.default.green(`sync ${this.ccpFileName}`);
             // 检查是否和cc-plugin的一致
             const fullPath = Path.join(process.cwd(), this.ccpFileName);
             if (!(0, fs_1.existsSync)(fullPath)) {
-                log_1.default.blue(`not exist: ${fullPath}`);
+                log_1.default.green(`not exist: ${fullPath}`);
                 return result;
             }
             let change = false, msg = "";
@@ -186,7 +186,7 @@ class Config {
                 log_1.default.yellow(`sync ${this.ccpFileName} nothing`);
                 return result;
             }
-            Fs.writeFileSync(fullPath, JSON.stringify(data));
+            Fs.writeFileSync(fullPath, JSON.stringify(data, null, 2));
             log_1.default.green(msg);
             return result;
         }
