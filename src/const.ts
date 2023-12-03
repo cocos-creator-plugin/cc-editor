@@ -3,13 +3,15 @@ import log from "./log";
 export class Result {
     success: boolean = true;
     msg: string = '';
-    failed(msg: string) {
+    failed(msg: string): Result {
         this.success = false;
         this.msg = msg;
+        return this;
     }
-    log() {
+    log(): Result {
         if (!this.success) {
-            return log.red(this.msg)
+            log.red(this.msg)
         }
+        return this;
     }
 }

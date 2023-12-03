@@ -4,57 +4,55 @@ import * as child_process from 'child_process';
 import printf from 'printf';
 
 export interface Choices {
+    /**
+     * 和inquirer.prompt({name:'name'})对应着，也可以是其他key
+     */
     name: string;
     value: string;
 }
 
 
 export interface ChoiceOptions {
-    onChoice: (ans: Choices) => void,
-    noChoice?: Function,
     askMsg: string,
 }
 
-function ask(choices: Choices[], options: ChoiceOptions) {
-    const { askMsg, noChoice, onChoice } = options;
-
+async function ask(choices: Choices[], options: ChoiceOptions): Promise<string> {
+    const { askMsg } = options;
     if (choices.length > 0) {
-        inquirer.prompt([
+        const ans: Choices = await inquirer.prompt([
             {
                 name: 'name',
                 message: askMsg,
                 type: 'list',
                 choices,
             }
-        ]).then((ans) => {
-            onChoice && onChoice(ans as Choices);
-        });
-    } else {
-        noChoice && noChoice();
+        ]);
+        return ans.name;
     }
+    return "";
 }
 
-export function getEditorChoice(options: ChoiceOptions) {
+export async function getEditorChoice(options: ChoiceOptions): Promise<string> {
     const choices = Config.data.editors.map(editor => {
         return {
             name: editor.name,
             value: editor.name,
         }
     })
-    ask(choices, options);
+    return await ask(choices, options);
 }
 
-export function getProjectChoice(options: ChoiceOptions) {
+export async function getProjectChoice(options: ChoiceOptions): Promise<string> {
     const choices = Config.data.projects.map(project => {
         return {
             name: project,
             value: project,
         }
     })
-    ask(choices, options);
+    return await ask(choices, options);
 }
 
-export function getGroupChoice(options: ChoiceOptions) {
+export async function getGroupChoice(options: ChoiceOptions): Promise<string> {
     const { groups, use } = Config.data;
 
     let maxLenName = 0;
@@ -79,15 +77,15 @@ export function getGroupChoice(options: ChoiceOptions) {
             value: group.name,
         }
     })
-    ask(choices, options);
+    return await ask(choices, options);
 }
 function groupIsUse(group: Group): boolean {
     const { use } = Config.data;
     return use.editor === group.editor && use.project === group.project;
 }
-export function getBuildCopyToChoice(options: ChoiceOptions) {
+export async function getBuildCopyToChoice(options: ChoiceOptions): Promise<string> {
     const choice = Config.data.buildAfter.copyTo.map(item => {
         return { name: item, value: item }
     })
-    ask(choice, options);
+    return await ask(choice, options);
 }

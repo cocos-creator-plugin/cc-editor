@@ -137,7 +137,7 @@ class Config {
         return ret;
     }
     addGroup(name, editor, project) {
-        let success = true, msg = '';
+        const result = new const_1.Result();
         if (!this.data.groups.find(el => el.name === name)) {
             this.data.groups.push({
                 name,
@@ -147,10 +147,9 @@ class Config {
             this.save();
         }
         else {
-            success = false;
-            msg = `已经存在组合[${name}]`;
+            result.failed(`已经存在组合[${name}]`);
         }
-        return { success, msg };
+        return result;
     }
     useGroup(name) {
         const result = new const_1.Result();
@@ -261,17 +260,18 @@ class Config {
     }
     useProject(project) {
         let success = true, msg = '';
+        const result = new const_1.Result();
         if (FsExtra.existsSync(project)) {
             this.data.use.project = project;
             this.save();
         }
         else {
-            success = false;
-            msg = `无法使用${name}，路径无效:${project}`;
+            result.failed(`无法使用${name}，路径无效:${project}`);
         }
-        return { success, msg };
+        return result;
     }
     useEditor(name) {
+        const result = new const_1.Result();
         let success = true, msg = '';
         const ret = this.data.editors.find(el => el.name === name);
         if (ret) {
@@ -280,15 +280,13 @@ class Config {
                 this.save();
             }
             else {
-                success = false;
-                msg = `无法使用${name}，路径无效:${ret.path}`;
+                result.failed(`无法使用${name}，路径无效:${ret.path}`);
             }
         }
         else {
-            success = false;
-            msg = `无效的配置：${name}`;
+            result.failed(`无效的配置：${name}`);
         }
-        return { success, msg };
+        return result;
     }
     _resetUseByEditor(editorName) {
         if (this.data.use.editor === editorName) {
@@ -329,11 +327,10 @@ class Config {
         }
     }
     removeProject(projectPath) {
-        let success = true, msg = '';
+        const result = new const_1.Result();
         const index = this.data.projects.findIndex(el => el === projectPath);
         if (index === -1) {
-            success = false;
-            msg = '未找到项目配置，删除失败 ';
+            result.failed('未找到项目配置，删除失败 ');
         }
         else {
             this.data.projects.splice(index, 1);
@@ -344,11 +341,11 @@ class Config {
             this._deleteGroupByProject(projectPath);
             this.save();
         }
-        return { success, msg };
+        return result;
     }
     addProject(projectPath) {
         projectPath = (0, util_1.toMyPath)(projectPath);
-        let success = true, msg = '';
+        const result = new const_1.Result();
         if (FsExtra.existsSync(projectPath)) {
             if (!this.data.projects.find(el => el === projectPath)) {
                 this.data.projects.push(projectPath);
@@ -356,32 +353,34 @@ class Config {
             }
         }
         else {
-            success = false;
-            msg = `无效的路径: ${projectPath}`;
+            result.failed(`无效的路径: ${projectPath}`);
         }
-        return { success, msg };
+        return result;
     }
     addEditor(name, editorPath) {
+        const result = new const_1.Result();
+        if (!name) {
+            return result.failed(`编辑器别名不能为空`);
+        }
         editorPath = (0, util_1.toMyPath)(editorPath);
         if (this.data.editors.find(el => el.name === name)) {
-            return `重复的编辑器名字：${name}`;
+            return result.failed(`重复的编辑器名字：${name}`);
         }
         if (!FsExtra.existsSync(editorPath)) {
-            return `无效的编辑器路径: ${editorPath}`;
+            return result.failed(`无效的编辑器路径: ${editorPath}`);
         }
         if (this.data.editors.find(el => el.path === editorPath)) {
-            return `重复的编辑器路径：${editorPath}`;
+            return result.failed(`重复的编辑器路径：${editorPath}`);
         }
         this.data.editors.push({ name, path: editorPath });
         this.save();
-        return '';
+        return result;
     }
     removeEditor(name) {
-        let success = true, msg = '';
+        const ret = new const_1.Result();
         const index = this.data.editors.findIndex(el => el.name === name);
         if (index === -1) {
-            success = false;
-            msg = '未找到编辑器配置，删除失败';
+            ret.failed('未找到编辑器配置，删除失败');
         }
         else {
             this.data.editors.splice(index, 1);
@@ -389,7 +388,7 @@ class Config {
             this._deleteGroupByEditor(name);
             this.save();
         }
-        return { success, msg };
+        return ret;
     }
     addBuildCopyDir(dir) {
         let success = true, msg = '';
@@ -404,11 +403,13 @@ class Config {
         return { success, msg };
     }
     removeBuildCopyDir(dir) {
+        const result = new const_1.Result();
         let index = this.data.buildAfter.copyTo.findIndex(el => el === dir);
         if (index !== -1) {
             this.data.buildAfter.copyTo.splice(index, 1);
             this.save();
         }
+        return result;
     }
     log() {
         log_1.default.blue(`config file path: ${FilePath}`);

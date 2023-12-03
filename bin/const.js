@@ -13,11 +13,13 @@ class Result {
     failed(msg) {
         this.success = false;
         this.msg = msg;
+        return this;
     }
     log() {
         if (!this.success) {
-            return log_1.default.red(this.msg);
+            log_1.default.red(this.msg);
         }
+        return this;
     }
 }
 exports.Result = Result;

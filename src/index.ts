@@ -1,5 +1,5 @@
 #! /usr/bin/env node
-import { getBuildCopyToChoice, getEditorChoice, getGroupChoice, getProjectChoice } from "./choice"
+import { ChoiceOptions, Choices, getBuildCopyToChoice, getEditorChoice, getGroupChoice, getProjectChoice } from "./choice"
 
 import * as Fs from 'fs'
 import { program } from 'commander'
@@ -10,12 +10,111 @@ import Run from './run'
 import Build from './build'
 import inquirer = require('inquirer')
 import { toMyPath } from './util';
-import { join, normalize } from "path"
+import { basename, join, normalize } from "path"
 
 program
     .version('0.0.1')
     .allowUnknownOption(true)
+program.command("setup")
+    .description("快速配置 (推荐使用)")
+    .action(async () => {
+        const exitFlag = '(回车退出)'
+        // 添加项目
+        log.blue('配置creator项目');
+        while (true) {
+            const ret: Choices = await inquirer.prompt({
+                name: 'name',
+                message: `请输入有效的creator项目目录 ${exitFlag}`,
+                type: 'input',
+            });
 
+            if (!ret.name) {
+                break
+            }
+            if (Config.addProject(ret.name).log().success) {
+                log.green(`添加项目成功: ${ret.name}`)
+            }
+        }
+        log.blue('配置creator编辑器')
+        // 添加编辑器目录
+        while (true) {
+            const editorPath: Choices = await inquirer.prompt({
+                name: "name",
+                message: `请输入编辑器的路径 ${exitFlag}`,
+                type: "input",
+            });
+            if (!editorPath.name) {
+                break;
+            }
+            let editorAtlas = basename(editorPath.name);
+            if (!editorAtlas) {
+                const editorName: Choices = await inquirer.prompt({
+                    name: "name",
+                    message: `请输入编辑器的别名`,
+                    type: "input",
+                });
+                editorAtlas = editorName.name;
+            }
+            if (Config.addEditor(editorAtlas, editorPath.name).log().success) {
+                log.green(`添加编辑器成功: ${editorAtlas} - ${editorPath.name}`)
+            }
+        }
+        // 添加组合
+        log.blue(`配置组合`)
+        while (true) {
+            const group: Choices = await inquirer.prompt({
+                name: "name",
+                message: `请输入组合名字： ${exitFlag}`,
+                type: "input",
+            });
+            if (!group.name) {
+                break;
+            }
+            const b = await doAddGroup(group.name);
+            if (b) {
+                log.green(`添加组合成功:${group.name}`);
+            }
+        }
+
+        // 使用组合
+        await doUseGroup()
+        // 启用cc-plugin.json支持
+        const enabledCPP = await inquirer.prompt({
+            name: "name",
+            default: false,
+            type: 'confirm',
+            message: `是否启用对${Config.ccpFileName}的支持?`
+        })
+        Config.enabledCCP(!!enabledCPP.name);
+        if (enabledCPP.name) {
+            if (Config.data.projects.length) {
+                // 配置v2/v3使用的项目目录
+                const projectList: Choices[] = Config.data.projects.map((project) => {
+                    return {
+                        name: project,
+                        value: project,
+                    }
+                });
+                const v2Project = await inquirer.prompt({
+                    name: 'name',
+                    message: '请选择creator v2项目路径',
+                    type: 'list',
+                    choices: projectList,
+                });
+                const v3Project = await inquirer.prompt({
+                    name: 'name',
+                    message: '请选择creator v3项目路径',
+                    type: 'list',
+                    choices: projectList,
+                });
+                if (Config.ccpSet(v2Project.name, v3Project.name).log().success) {
+                    log.green(`配置${Config.ccpFileName}对应的项目路径成功`)
+                }
+            } else {
+                log.yellow(`没有找到配置的creator项目，无法配置${Config.ccpFileName}`);
+            }
+        }
+    });
 program.command('reset')
     .description('校验无效的配置，并自动删除重置数据')
     .action(() => {
@@ -63,121 +162,108 @@ program.command('add-editor')
     .argument('editor-name', '编辑器名字')
     .argument('editor-path', '编辑器路径')
     .action((name, editorPath) => {
-        const msg = Config.addEditor(name, editorPath);
-        if (msg) {
-            log.red(msg)
-        }
+        Config.addEditor(name, editorPath).log();
     })
+
+
+async function doAddGroup(name: string): Promise<boolean> {
+    const editor = await getEditorChoice({
+        askMsg: '请选择要组合的编辑器',
+    })
+    if (!editor) {
+        return false;
+    }
+    const project = await getProjectChoice({
+        askMsg: '请选择要组合的项目',
+
+    })
+    if (!project) {
+        return false;
+    }
+    return Config.addGroup(name, editor, project).log().success;
+}
 program.command('add-group')
     .description('将当前使用的的配置保存为一个组合，供下次使用')
     .argument('name', '组合的名字')
-    .action((name: string) => {
-        getEditorChoice({
-            askMsg: '请选择要组合的编辑器',
-            onChoice: (editor) => {
-                getProjectChoice({
-                    askMsg: '请选择要组合的项目',
-                    onChoice: (project) => {
-                        let ret = Config.addGroup(name, editor.name, project.name)
-                        if (!ret.success) {
-                            return log.red(ret.msg)
-                        }
-                    }
-                })
-            }
-        })
+    .action(async (name: string) => {
+        await doAddGroup(name);
     })
 program.command('use-editor')
     .description('使用本地指定的配置')
-    .action(() => {
-        getEditorChoice({
+    .action(async () => {
+        const ans = await getEditorChoice({
             askMsg: '请选择使用的Creator版本',
-            noChoice() {
-                log.red(`请先添加编辑器路径: add-editor`)
-
-            },
-            onChoice: (ans) => {
-                const ret = Config.useEditor(ans.name)
-                if (!ret.success) {
-                    console.log(ret.msg)
-                }
-            }
         })
+        if (ans) {
+            Config.useEditor(ans).log()
+        } else {
+            log.red(`请先添加编辑器路径: add-editor`)
+        }
+
     })
 
 program.command('use-project')
     .description('使用的项目')
-    .action(() => {
-        getProjectChoice({
+    .action(async () => {
+        const ans = await getProjectChoice({
             askMsg: '请选择使用的项目',
-            noChoice() {
-                log.red(`请先添加项目路径： add-project `)
-            },
-            onChoice: (ans) => {
-                const ret = Config.useProject(ans.name)
-                if (!ret.success) {
-                    console.log(ret.msg)
-                }
-            }
         })
+        if (ans) {
+            Config.useProject(ans).log()
+        } else {
+            log.red(`请先添加项目路径： add-project `)
+        }
+
     })
+async function doUseGroup() {
+    const groupName = await getGroupChoice({
+        askMsg: '请选择要使用的组合',
+    })
+    if (groupName) {
+        Config.useGroup(groupName).log();
+    } else {
+        log.red('没有可以使用的组合')
+    }
+}
 program.command('use-group')
     .description(`使用组合快速切换配置，支持${Config.ccpFileName}联动`)
-    .action(() => {
-        getGroupChoice({
-            askMsg: '请选择要使用的组合',
-            onChoice(ans) {
-                Config.useGroup(ans.name).log();
-            },
-            noChoice() {
-                log.red('没有可以使用的组合')
-            }
-        })
+    .action(async () => {
+        await doUseGroup();
     })
 program.command('rm-project')
     .description('删除项目配置')
-    .action(() => {
-        getProjectChoice({
+    .action(async () => {
+        const ans = await getProjectChoice({
             askMsg: '请选择要删除的项目',
-            onChoice: (ans) => {
-                let ret = Config.removeProject(ans.name);
-                if (!ret.success) {
-                    return log.red(ret.msg)
-                }
-            },
-            noChoice() {
-                log.red('没有可以删除的项目')
-            }
         })
+        if (ans) {
+            Config.removeProject(ans);
+        } else {
+            log.red('没有可以删除的项目')
+        }
     });
 
 program.command('rm-editor')
     .description('删除编辑器配置')
-    .action(() => {
-        getEditorChoice({
+    .action(async () => {
+        const ans = await getEditorChoice({
             askMsg: '请选择要删除的编辑器',
-            onChoice: (ans) => {
-                let ret = Config.removeEditor(ans.name);
-                if (!ret.success) {
-                    return log.red(ret.msg)
-                }
-            },
-            noChoice: () => {
-                log.red('没有可以删除的编辑器')
-            }
         })
+        if (ans) {
+            Config.removeEditor(ans);
+        } else {
+            log.red('没有可以删除的编辑器')
+        }
     })
 
 
 program.command('rm-group')
     .description('删除配置组合')
-    .action(() => {
-        getGroupChoice({
+    .action(async () => {
+        const ans = await getGroupChoice({
             askMsg: '请选择要删除的组合',
-            onChoice(ans) {
-                Config.removeGroup(ans.name).log();
-            }
         })
+        Config.removeGroup(ans).log();
     })
 
 
@@ -255,16 +341,15 @@ program.command('add-build-copy')
 
 program.command('rm-build-copy')
     .description('删除完成构建后的copy文件夹')
-    .action(() => {
-        getBuildCopyToChoice({
+    .action(async () => {
+        const ans = await getBuildCopyToChoice({
             askMsg: '请选择要删除的copy文件夹',
-            onChoice(ans) {
-                Config.removeBuildCopyDir(ans.name);
-            },
-            noChoice() {
-                log.red('没有可以删除的文件夹');
-            }
         })
+        if (ans) {
+            Config.removeBuildCopyDir(ans).log();
+        } else {
+            log.red('没有可以删除的文件夹');
+        }
     })
 program.command('format')
     .description('格式化，主要是处理路径')
