@@ -9,7 +9,7 @@ import log from './log'
 import Run from './run'
 import Build from './build'
 import inquirer = require('inquirer')
-import { logFailed, toMyPath } from './util';
+import { toMyPath } from './util';
 import { join, normalize } from "path"
 
 program
@@ -122,12 +122,12 @@ program.command('use-project')
         })
     })
 program.command('use-group')
-    .description('使用组合快速切换配置')
+    .description(`使用组合快速切换配置，支持${Config.ccpFileName}联动`)
     .action(() => {
         getGroupChoice({
             askMsg: '请选择要使用的组合',
             onChoice(ans) {
-                logFailed(Config.useGroup(ans.name))
+                Config.useGroup(ans.name).log();
             },
             noChoice() {
                 log.red('没有可以使用的组合')
@@ -175,7 +175,7 @@ program.command('rm-group')
         getGroupChoice({
             askMsg: '请选择要删除的组合',
             onChoice(ans) {
-                logFailed(Config.removeGroup(ans.name))
+                Config.removeGroup(ans.name).log();
             }
         })
     })
@@ -215,6 +215,12 @@ program.command('run')
             return log.red(ret.msg)
         }
         Run()
+    })
+program.command('ccp-enabled')
+    .description(`对${Config.ccpFileName}的联动支持`)
+    .argument('enabled', `true启用，其他值为不启用`)
+    .action((enabled: string) => {
+        Config.enabledCCP(enabled.toLocaleLowerCase() === 'true');
     })
 program.command('ccp-set')
     .description('设置cc-plugin构建的creator插件输出目录')

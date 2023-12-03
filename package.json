@@ -1,6 +1,6 @@
 {
   "name": "@xuyanfeng/cc-editor",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "",
   "bin": {
     "cc-editor": "./bin/index.js",
@@ -13,6 +13,7 @@
     "test-format": "tsc && node ./bin/index.js format",
     "test-ccp-set": "tsc && node ./bin/index.js ccp-set -v2 E:/proj -v3 E:/proj",
     "test-use-group": "tsc && node ./bin/index.js use-group",
+    "test-ccp-enabled": "tsc && node ./bin/index.js ccp-enabled true",
     "publish": "tsc && npm publish"
   },
   "repository": {

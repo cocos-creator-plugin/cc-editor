@@ -8,5 +8,8 @@ export default {
     },
     blue(str?: string) {
         console.log(chalk.blue(str || ''))
+    },
+    yellow(str?: string) {
+        console.log(chalk.yellow(str || ''))
     }
 }

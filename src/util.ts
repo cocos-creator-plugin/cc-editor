@@ -9,12 +9,6 @@ function isMac() {
     return OS.platform() === 'darwin'
 }
 
-export function logFailed(ret: { success: boolean, msg: string }) {
-    if (!ret.success) {
-        log.red(ret.msg || '');
-    }
-}
-
 export function getEditorRealExecutePath(rootPath: string) {
     const state = Fs.statSync(rootPath);
     if (state.isDirectory()) {

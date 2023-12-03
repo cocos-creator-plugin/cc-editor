@@ -26,8 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.toMyPath = exports.getEditorVersion = exports.getEditorRealExecutePath = exports.logFailed = void 0;
-const log_1 = __importDefault(require("./log"));
+exports.toMyPath = exports.getEditorVersion = exports.getEditorRealExecutePath = void 0;
 const os_1 = __importDefault(require("os"));
 const path_1 = __importStar(require("path"));
 const plist_1 = __importDefault(require("plist"));
@@ -36,12 +35,6 @@ const win_version_info_1 = __importDefault(require("win-version-info"));
 function isMac() {
     return os_1.default.platform() === 'darwin';
 }
-function logFailed(ret) {
-    if (!ret.success) {
-        log_1.default.red(ret.msg || '');
-    }
-}
-exports.logFailed = logFailed;
 function getEditorRealExecutePath(rootPath) {
     const state = fs_1.default.statSync(rootPath);
     if (state.isDirectory()) {

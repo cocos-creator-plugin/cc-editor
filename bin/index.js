@@ -140,12 +140,12 @@ commander_1.program.command('use-project')
     });
 });
 commander_1.program.command('use-group')
-    .description('使用组合快速切换配置')
+    .description(`使用组合快速切换配置，支持${config_1.default.ccpFileName}联动`)
     .action(() => {
     (0, choice_1.getGroupChoice)({
         askMsg: '请选择要使用的组合',
         onChoice(ans) {
-            (0, util_1.logFailed)(config_1.default.useGroup(ans.name));
+            config_1.default.useGroup(ans.name).log();
         },
         noChoice() {
             log_1.default.red('没有可以使用的组合');
@@ -190,7 +190,7 @@ commander_1.program.command('rm-group')
     (0, choice_1.getGroupChoice)({
         askMsg: '请选择要删除的组合',
         onChoice(ans) {
-            (0, util_1.logFailed)(config_1.default.removeGroup(ans.name));
+            config_1.default.removeGroup(ans.name).log();
         }
     });
 });
@@ -226,6 +226,12 @@ commander_1.program.command('run')
         return log_1.default.red(ret.msg);
     }
     (0, run_1.default)();
+});
+commander_1.program.command('ccp-enabled')
+    .description(`对${config_1.default.ccpFileName}的联动支持`)
+    .argument('enabled', `true启用，其他值为不启用`)
+    .action((enabled) => {
+    config_1.default.enabledCCP(enabled.toLocaleLowerCase() === 'true');
 });
 commander_1.program.command('ccp-set')
     .description('设置cc-plugin构建的creator插件输出目录')

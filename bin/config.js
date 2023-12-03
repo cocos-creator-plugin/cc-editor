@@ -47,7 +47,7 @@ class ConfigData {
         this.debug = true;
         this.brk = false;
         this.port = 2021;
-        this.ccp = { V2: '', V3: '' };
+        this.ccp = { V2: '', V3: '', enabled: false };
         this.buildAfter = {
             copyTo: [],
         };
@@ -153,31 +153,59 @@ class Config {
         return { success, msg };
     }
     useGroup(name) {
-        let success = true, msg = '';
+        const result = new const_1.Result();
         let ret = this.data.groups.find(el => el.name === name);
         if (ret) {
             this.data.use.editor = ret.editor;
             this.data.use.project = ret.project;
             this.save();
+            log_1.default.green(`change group ${name} successfully`);
+            if (!this.data.ccp.enabled) {
+                return result;
+            }
+            log_1.default.blue(`sync ${this.ccpFileName}`);
+            // 检查是否和cc-plugin的一致
+            const fullPath = Path.join(process.cwd(), this.ccpFileName);
+            if (!(0, fs_1.existsSync)(fullPath)) {
+                log_1.default.blue(`not exist: ${fullPath}`);
+                return result;
+            }
+            let change = false, msg = "";
+            const data = JSON.parse(Fs.readFileSync(fullPath, 'utf8'));
+            if (ret.editor.startsWith('2') && data.hasOwnProperty('v2')) {
+                data.v2 = (0, util_1.toMyPath)(ret.project);
+                change = true;
+                msg = `${this.ccpFileName} sync v2: ${ret.project}`;
+            }
+            if (ret.editor.startsWith('3') && data.hasOwnProperty('v3')) {
+                data.v3 = (0, util_1.toMyPath)(ret.project);
+                change = true;
+                msg = `${this.ccpFileName} sync v3: ${ret.project}`;
+            }
+            if (!change) {
+                log_1.default.yellow(`sync ${this.ccpFileName} nothing`);
+                return result;
+            }
+            Fs.writeFileSync(fullPath, JSON.stringify(data));
+            log_1.default.green(msg);
+            return result;
         }
         else {
-            success = false;
-            msg = '无法找到组合配置项！';
+            result.failed('无法找到组合配置项！');
         }
-        return { success, msg };
+        return result;
     }
     removeGroup(name) {
-        let success = true, msg = '';
+        const result = new const_1.Result();
         const index = this.data.groups.findIndex(el => el.name === name);
         if (index === -1) {
-            success = false;
-            msg = '未找到组合，删除失败';
+            result.failed('未找到组合，删除失败');
         }
         else {
             this.data.groups.splice(index, 1);
             this.save();
         }
-        return { success, msg };
+        return result;
     }
     format() {
         const { use, projects, groups, editors } = this.data;
@@ -201,6 +229,11 @@ class Config {
     }
     setDebug(debug) {
         this.data.debug = !!debug;
+        this.save();
+    }
+    enabledCCP(enabled) {
+        this.data.ccp.enabled = !!enabled;
+        log_1.default.green(!!this.data.ccp.enabled ? `启用${this.ccpFileName}支持` : `禁用${this.ccpFileName}支持`);
         this.save();
     }
     setBrk(brk) {

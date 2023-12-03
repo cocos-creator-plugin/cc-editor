@@ -10,6 +10,9 @@ exports.default = {
     },
     blue(str) {
         console.log(chalk.blue(str || ''));
+    },
+    yellow(str) {
+        console.log(chalk.yellow(str || ''));
     }
 };
 //# sourceMappingURL=log.js.map
