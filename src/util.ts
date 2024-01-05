@@ -43,5 +43,9 @@ export function getEditorVersion(rootPath: string) {
     return version;
 }
 export function toMyPath(v: string): string {
-    return normalize(v).split(sep).join('/');
+    if (v) {
+        return normalize(v).split(sep).join('/');
+    } else {
+        return "";
+    }
 }

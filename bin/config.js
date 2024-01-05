@@ -47,7 +47,7 @@ class ConfigData {
         this.debug = true;
         this.brk = false;
         this.port = 2021;
-        this.ccp = { V2: '', V3: '', enabled: false };
+        this.ccp = { V2: '', V3: '', Chrome: '', enabled: false };
         this.buildAfter = {
             copyTo: [],
         };
@@ -118,10 +118,10 @@ class Config {
         return "cc-plugin.json";
     }
     ccpData() {
-        const { V2, V3 } = this.data.ccp;
-        return JSON.stringify({ v2: V2, v3: V3 }, null, 2);
+        const { V2, V3, Chrome } = this.data.ccp;
+        return JSON.stringify({ v2: V2, v3: V3, chrome: Chrome }, null, 2);
     }
-    ccpSet(v2, v3) {
+    ccpSet(v2, v3, chrome) {
         const ret = new const_1.Result();
         if (!(0, fs_1.existsSync)(v2)) {
             ret.failed(`not exists: ${v2}`);
@@ -133,6 +133,7 @@ class Config {
         }
         this.data.ccp.V2 = (0, util_1.toMyPath)(v2);
         this.data.ccp.V3 = (0, util_1.toMyPath)(v3);
+        this.data.ccp.Chrome = (0, util_1.toMyPath)(chrome);
         this.save();
         return ret;
     }

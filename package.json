@@ -1,6 +1,6 @@
 {
   "name": "@xuyanfeng/cc-editor",
-  "version": "1.0.11",
+  "version": "1.0.12",
   "description": "",
   "bin": {
     "cc-editor": "./bin/index.js",

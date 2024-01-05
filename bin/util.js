@@ -73,7 +73,12 @@ function getEditorVersion(rootPath) {
 }
 exports.getEditorVersion = getEditorVersion;
 function toMyPath(v) {
-    return (0, path_1.normalize)(v).split(path_1.sep).join('/');
+    if (v) {
+        return (0, path_1.normalize)(v).split(path_1.sep).join('/');
+    }
+    else {
+        return "";
+    }
 }
 exports.toMyPath = toMyPath;
 //# sourceMappingURL=util.js.map

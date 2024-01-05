@@ -41,6 +41,10 @@ export interface CCP_Json {
      * cc-plugin输出creator v3版本的项目目录
      */
     V3: string;
+    /**
+     * cc-plugin输出chrome扩展的目录，chrome可以加载这个目录下的扩展
+     */
+    Chrome: string;
 }
 class ConfigData {
     editors: Array<{ name: string, path: string }> = [];
@@ -53,7 +57,7 @@ class ConfigData {
     debug: boolean = true;
     brk: boolean = false;
     port: number = 2021;
-    ccp: CCP_Json = { V2: '', V3: '', enabled: false };
+    ccp: CCP_Json = { V2: '', V3: '', Chrome: '', enabled: false };
     buildAfter: { copyTo: string[] } = {
         copyTo: [],
     }
@@ -124,10 +128,10 @@ class Config {
         return "cc-plugin.json";
     }
     ccpData(): string {
-        const { V2, V3 } = this.data.ccp;
-        return JSON.stringify({ v2: V2, v3: V3 }, null, 2);
+        const { V2, V3, Chrome } = this.data.ccp;
+        return JSON.stringify({ v2: V2, v3: V3, chrome: Chrome }, null, 2);
     }
-    ccpSet(v2: string, v3: string): Result {
+    ccpSet(v2: string, v3: string, chrome: string): Result {
         const ret = new Result();
         if (!existsSync(v2)) {
             ret.failed(`not exists: ${v2}`);
@@ -139,6 +143,7 @@ class Config {
         }
         this.data.ccp.V2 = toMyPath(v2);
         this.data.ccp.V3 = toMyPath(v3);
+        this.data.ccp.Chrome = toMyPath(chrome);
         this.save();
         return ret;
     }

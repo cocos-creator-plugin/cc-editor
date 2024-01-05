@@ -7,13 +7,24 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Launch Program",
+      "name": "cce cfg",
       "runtimeArgs": ["-r", "ts-node/register"],
       "skipFiles": ["<node_internals>/**"],
       "program": "${workspaceFolder}\\src\\index.ts",
       "args": ["cfg"],
       "preLaunchTask": "npm: build-watch",
       "outFiles": ["${workspaceFolder}/**/*.js"]
-    }
+    },
+    {
+        "type": "node",
+        "request": "launch",
+        "name": "cce ccp-set",
+        "runtimeArgs": ["-r", "ts-node/register"],
+        "skipFiles": ["<node_internals>/**"],
+        "program": "${workspaceFolder}\\src\\index.ts",
+        "args": ["ccp-set","-chrome","a/b/c"],
+        "preLaunchTask": "npm: build-watch",
+        "outFiles": ["${workspaceFolder}/**/*.js"]
+      }
   ]
 }

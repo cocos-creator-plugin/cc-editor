@@ -139,7 +139,7 @@ commander_1.program.command("setup")
                 type: 'list',
                 choices: projectList,
             });
-            if (config_1.default.ccpSet(v2Project.name, v3Project.name).log().success) {
+            if (config_1.default.ccpSet(v2Project.name, v3Project.name, "").log().success) {
                 log_1.default.green(`配置${config_1.default.ccpFileName}对应的项目路径成功`);
             }
         }
@@ -338,8 +338,9 @@ commander_1.program.command('ccp-set')
     .description('设置cc-plugin构建的creator插件输出目录')
     .option('-v2 <string>', 'creator v2 项目目录')
     .option('-v3 <string>', 'creator v3 项目目录')
+    .option('-chrome <string>', 'chrome 目录')
     .action((data) => {
-    config_1.default.ccpSet(data.V2, data.V3).log();
+    config_1.default.ccpSet(data.V2, data.V3, data.Chrome).log();
 });
 commander_1.program.command('ccp-config')
     .description(`配置当前目录的${config_1.default.ccpFileName}`)
