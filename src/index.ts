@@ -6,10 +6,10 @@ import { program } from 'commander'
 import Config, { CCP_Json } from './config'
 import chalk from 'chalk'
 import log from './log'
-import Run from './run'
+import { Run, openProject } from './run'
 import Build from './build'
 import inquirer = require('inquirer')
-import { toMyPath } from './util';
+import { getCreatorProjectVersion, isCreatorProject, isNumber, toMyPath } from './util';
 import { basename, join, normalize } from "path"
 
 program
@@ -302,6 +302,44 @@ program.command('run')
         }
         Run()
     })
+program.command("open")
+    .description("打开当前目录所在的creator项目")
+    .action(async () => {
+        const dir = process.cwd();
+        if (!isCreatorProject(dir)) {
+            log.red(`${dir} 不是creator项目, 无法打开`)
+            return;
+        }
+        const version = getCreatorProjectVersion(dir);
+        const editorName = await getEditorChoice({
+            default: version || "",
+            askMsg: "请选择打开项目使用的creator编辑器"
+        })
+        if (!editorName) {
+            return;
+        }
+        if (version) {
+            // 使用的编辑器版本和项目的不一致，给出提示
+            const a = editorName.split('.')[0];
+            const b = version.split('.')[0];
+            if (isNumber(a) && isNumber(b) && a !== b) {
+                const ensure = await inquirer.prompt([{
+                    name: 'ret',
+                    message: `当前项目的creator版本是 ${version}, 你确定要使用 ${editorName} 打开么？`,
+                    type: 'confirm'
+                }])
+                if (ensure.ret !== true) {
+                    return
+                }
+            }
+        }
+        const editorPath = Config.getEditorPath(editorName);
+        if (!editorPath) {
+            log.red(`未发现${editorName}对应的编辑器路径`);
+            return;
+        }
+        openProject(editorPath, dir);
+    });
 program.command('ccp-enabled')
     .description(`对${Config.ccpFileName}的联动支持`)
     .argument('enabled', `true启用，其他值为不启用`)

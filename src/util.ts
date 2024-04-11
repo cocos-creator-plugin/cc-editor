@@ -1,8 +1,8 @@
 import log from './log';
 import OS from 'os';
-import Path, { normalize, sep } from 'path';
+import Path, { join, normalize, sep } from 'path';
 import plist from 'plist';
-import Fs from 'fs';
+import Fs, { existsSync } from 'fs';
 import VersionInfo from 'win-version-info'
 
 function isMac() {
@@ -48,4 +48,45 @@ export function toMyPath(v: string): string {
     } else {
         return "";
     }
+}
+
+export function isCreatorProject(dir: string): boolean {
+    const assets = join(dir, 'assets');
+    return !!existsSync(assets);
+}
+export function getCreatorProjectVersion(dir: string): string | null {
+    const cfg = [
+        {
+            file: "project.json",
+            getVersion: (data: Record<string, any>) => {
+                return data.version || null;
+            }
+        },
+        {
+            file: 'package.json',
+            getVersion: (data: Record<string, any>) => {
+                if (data.creator && data.creator.version) {
+                    return data.creator.version;
+                }
+                return data.version || null;
+            }
+        }
+    ]
+    for (let i = 0; i < cfg.length; i++) {
+        const { file, getVersion } = cfg[i];
+        const flagFile = join(dir, file);
+        if (!Fs.existsSync(flagFile)) {
+            continue;
+        }
+        try {
+            const data = JSON.parse(Fs.readFileSync(flagFile, "utf-8"));
+            return getVersion(data);
+        } catch (e) {
+            console.log(e);
+        }
+    }
+    return null;
+}
+export function isNumber(str: string) {
+    return /^\d+$/.test(str);
 }

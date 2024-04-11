@@ -41,7 +41,7 @@ const Fs = __importStar(require("fs"));
 const commander_1 = require("commander");
 const config_1 = __importDefault(require("./config"));
 const log_1 = __importDefault(require("./log"));
-const run_1 = __importDefault(require("./run"));
+const run_1 = require("./run");
 const build_1 = __importDefault(require("./build"));
 const inquirer = require("inquirer");
 const util_1 = require("./util");
@@ -326,8 +326,46 @@ commander_1.program.command('run')
     if (!ret.success) {
         return log_1.default.red(ret.msg);
     }
-    (0, run_1.default)();
+    (0, run_1.Run)();
 });
+commander_1.program.command("open")
+    .description("打开当前目录所在的creator项目")
+    .action(() => __awaiter(void 0, void 0, void 0, function* () {
+    const dir = process.cwd();
+    if (!(0, util_1.isCreatorProject)(dir)) {
+        log_1.default.red(`${dir} 不是creator项目, 无法打开`);
+        return;
+    }
+    const version = (0, util_1.getCreatorProjectVersion)(dir);
+    const editorName = yield (0, choice_1.getEditorChoice)({
+        default: version || "",
+        askMsg: "请选择打开项目使用的creator编辑器"
+    });
+    if (!editorName) {
+        return;
+    }
+    if (version) {
+        // 使用的编辑器版本和项目的不一致，给出提示
+        const a = editorName.split('.')[0];
+        const b = version.split('.')[0];
+        if ((0, util_1.isNumber)(a) && (0, util_1.isNumber)(b) && a !== b) {
+            const ensure = yield inquirer.prompt([{
+                    name: 'ret',
+                    message: `当前项目的creator版本是 ${version}, 你确定要使用 ${editorName} 打开么？`,
+                    type: 'confirm'
+                }]);
+            if (ensure.ret !== true) {
+                return;
+            }
+        }
+    }
+    const editorPath = config_1.default.getEditorPath(editorName);
+    if (!editorPath) {
+        log_1.default.red(`未发现${editorName}对应的编辑器路径`);
+        return;
+    }
+    (0, run_1.openProject)(editorPath, dir);
+}));
 commander_1.program.command('ccp-enabled')
     .description(`对${config_1.default.ccpFileName}的联动支持`)
     .argument('enabled', `true启用，其他值为不启用`)

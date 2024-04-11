@@ -253,6 +253,9 @@ class Config {
     }
     getCurrentEditorPath() {
         const { project, editor } = this.data.use;
+        return this.getEditorPath(editor);
+    }
+    getEditorPath(editor) {
         const ret = this.data.editors.find(el => el.name === editor);
         if (ret && ret.path) {
             return ret.path || null;

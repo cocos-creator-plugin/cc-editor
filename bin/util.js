@@ -26,11 +26,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.toMyPath = exports.getEditorVersion = exports.getEditorRealExecutePath = void 0;
+exports.isNumber = exports.getCreatorProjectVersion = exports.isCreatorProject = exports.toMyPath = exports.getEditorVersion = exports.getEditorRealExecutePath = void 0;
 const os_1 = __importDefault(require("os"));
 const path_1 = __importStar(require("path"));
 const plist_1 = __importDefault(require("plist"));
-const fs_1 = __importDefault(require("fs"));
+const fs_1 = __importStar(require("fs"));
 const win_version_info_1 = __importDefault(require("win-version-info"));
 function isMac() {
     return os_1.default.platform() === 'darwin';
@@ -81,4 +81,48 @@ function toMyPath(v) {
     }
 }
 exports.toMyPath = toMyPath;
+function isCreatorProject(dir) {
+    const assets = (0, path_1.join)(dir, 'assets');
+    return !!(0, fs_1.existsSync)(assets);
+}
+exports.isCreatorProject = isCreatorProject;
+function getCreatorProjectVersion(dir) {
+    const cfg = [
+        {
+            file: "project.json",
+            getVersion: (data) => {
+                return data.version || null;
+            }
+        },
+        {
+            file: 'package.json',
+            getVersion: (data) => {
+                if (data.creator && data.creator.version) {
+                    return data.creator.version;
+                }
+                return data.version || null;
+            }
+        }
+    ];
+    for (let i = 0; i < cfg.length; i++) {
+        const { file, getVersion } = cfg[i];
+        const flagFile = (0, path_1.join)(dir, file);
+        if (!fs_1.default.existsSync(flagFile)) {
+            continue;
+        }
+        try {
+            const data = JSON.parse(fs_1.default.readFileSync(flagFile, "utf-8"));
+            return getVersion(data);
+        }
+        catch (e) {
+            console.log(e);
+        }
+    }
+    return null;
+}
+exports.getCreatorProjectVersion = getCreatorProjectVersion;
+function isNumber(str) {
+    return /^\d+$/.test(str);
+}
+exports.isNumber = isNumber;
 //# sourceMappingURL=util.js.map

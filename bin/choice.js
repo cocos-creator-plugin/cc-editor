@@ -25,6 +25,7 @@ function ask(choices, options) {
                     name: 'name',
                     message: askMsg,
                     type: 'list',
+                    default: options.default || "",
                     choices,
                 }
             ]);

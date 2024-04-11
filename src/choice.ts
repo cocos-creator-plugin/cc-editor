@@ -14,6 +14,7 @@ export interface Choices {
 
 export interface ChoiceOptions {
     askMsg: string,
+    default?: string,
 }
 
 async function ask(choices: Choices[], options: ChoiceOptions): Promise<string> {
@@ -24,6 +25,7 @@ async function ask(choices: Choices[], options: ChoiceOptions): Promise<string> 
                 name: 'name',
                 message: askMsg,
                 type: 'list',
+                default: options.default || "",
                 choices,
             }
         ]);

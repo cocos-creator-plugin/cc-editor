@@ -9,15 +9,18 @@ import * as Fs from 'fs';
 import { getEditorRealExecutePath, getEditorVersion } from './util';
 import { exec } from 'child_process';
 
-export default () => {
+export function Run() {
     const { project } = Config.data.use;
-    const { debug, port, brk } = Config.data;
     const rootPath = Config.getCurrentEditorPath();
-    if (!rootPath) {
+    openProject(rootPath, project);
+}
+export function openProject(editor: string | null, project: string) {
+    if (!editor) {
         return;
     }
-    const editorPath = getEditorRealExecutePath(rootPath);
-    let version = getEditorVersion(rootPath);
+    const { debug, port, brk } = Config.data;
+    const editorPath = getEditorRealExecutePath(editor);
+    let version = getEditorVersion(editor);
     const projectParam = version.startsWith('2.') ? 'path' : 'project';
     let cmd = `${editorPath} --nologin --${projectParam} ${project}`;
     if (debug) {
