@@ -76,12 +76,17 @@ cce list
 
 
 ## 4. 快速当前工作目录的creator项目
-```
-cd dir
-cce open
-```
-如果不是creator项目，则不会打开，如果该目录是creator项目，会自动选择creator版本。
+
+如果不是creator项目，则不会打开
+
+![](./doc/cce-open-3.gif)
+
+如果该目录是creator项目，会自动选择creator版本。
+
+![](./doc/cce-open-1.gif)
 
 如果选择的creator版本和项目的creator版本不兼容，比如项目是2.x，但选择了creator 3.x, 则会再次确认是否打开。
+
+![](./doc/cce-open-2.gif)
 
 `更多功能，不定期更新...`
