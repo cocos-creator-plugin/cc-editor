@@ -334,6 +334,7 @@ commander_1.program.command("reg-context-menu")
     .action(() => __awaiter(void 0, void 0, void 0, function* () {
     if (os_1.default.platform() === 'win32') {
         (0, util_1.addOpen2ContextMenu)();
+        log_1.default.green(`添加到右键菜单成功`);
     }
     else {
         log_1.default.yellow(`暂不支持`);
