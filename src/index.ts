@@ -311,6 +311,10 @@ program.command("open")
             return;
         }
         const version = getCreatorProjectVersion(dir);
+        if (!Config.data.editors.length) {
+            log.yellow(`请先添加编辑器路径: cce add-editor 编辑器别名 编辑器路径`)
+            return;
+        }
         const editorName = await getEditorChoice({
             default: version || "",
             askMsg: "请选择打开项目使用的creator编辑器"

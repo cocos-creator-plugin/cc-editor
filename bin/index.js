@@ -337,6 +337,10 @@ commander_1.program.command("open")
         return;
     }
     const version = (0, util_1.getCreatorProjectVersion)(dir);
+    if (!config_1.default.data.editors.length) {
+        log_1.default.yellow(`请先添加编辑器路径: cce add-editor 编辑器别名 编辑器路径`);
+        return;
+    }
     const editorName = yield (0, choice_1.getEditorChoice)({
         default: version || "",
         askMsg: "请选择打开项目使用的creator编辑器"

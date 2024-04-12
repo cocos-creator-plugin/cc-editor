@@ -366,6 +366,9 @@ class Config {
         if (!name) {
             return result.failed(`编辑器别名不能为空`);
         }
+        if (Fs.statSync(editorPath).isFile()) {
+            editorPath = Path.dirname(editorPath);
+        }
         editorPath = (0, util_1.toMyPath)(editorPath);
         if (this.data.editors.find(el => el.name === name)) {
             return result.failed(`重复的编辑器名字：${name}`);
