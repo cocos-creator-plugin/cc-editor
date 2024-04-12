@@ -37,6 +37,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const choice_1 = require("./choice");
+const os_1 = __importDefault(require("os"));
 const Fs = __importStar(require("fs"));
 const commander_1 = require("commander");
 const config_1 = __importDefault(require("./config"));
@@ -328,6 +329,16 @@ commander_1.program.command('run')
     }
     (0, run_1.Run)();
 });
+commander_1.program.command("reg-context-menu")
+    .description("将 cce open 注册到右键菜单上")
+    .action(() => __awaiter(void 0, void 0, void 0, function* () {
+    if (os_1.default.platform() === 'win32') {
+        (0, util_1.addOpen2ContextMenu)();
+    }
+    else {
+        log_1.default.yellow(`暂不支持`);
+    }
+}));
 commander_1.program.command("open")
     .description("打开当前目录所在的creator项目")
     .action(() => __awaiter(void 0, void 0, void 0, function* () {

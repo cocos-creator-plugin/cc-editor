@@ -4,7 +4,7 @@ import Path, { join, normalize, sep } from 'path';
 import plist from 'plist';
 import Fs, { existsSync } from 'fs';
 import VersionInfo from 'win-version-info'
-
+import regedit from 'regedit'
 function isMac() {
     return OS.platform() === 'darwin'
 }
@@ -89,4 +89,29 @@ export function getCreatorProjectVersion(dir: string): string | null {
 }
 export function isNumber(str: string) {
     return /^\d+$/.test(str);
+}
+export async function addOpen2ContextMenu() {
+    await changeRegister('HKCR\\directory\\background\\shell\\cc-editor');
+    await changeRegister('HKCR\\Folder\\shell\\cc-editor');
+}
+async function changeRegister(key: string) {
+    const key_command = `${key}\\command`;
+    const ret = await regedit.promisified.list([key, key_command])
+    if (!ret[key].exists) {
+        await regedit.promisified.createKey([key])
+    }
+    if (!ret[key_command].exists) {
+        await regedit.promisified.createKey([key_command])
+    }
+    const icon = join(__dirname, '../doc/1.ico')
+    const obj: any = {};
+    obj[key] = {
+        root: { type: "REG_DEFAULT", value: "cce open" },
+        icon: { value: icon, type: "REG_SZ" }
+    }
+    const cmd = `"${join(__dirname, '../shell/cce-open.bat')}" %V`
+    obj[key_command] = {
+        root: { type: "REG_DEFAULT", value: cmd }
+    }
+    await regedit.promisified.putValue(obj)
 }

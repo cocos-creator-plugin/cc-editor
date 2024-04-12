@@ -1,6 +1,6 @@
 #! /usr/bin/env node
 import { ChoiceOptions, Choices, getBuildCopyToChoice, getEditorChoice, getGroupChoice, getProjectChoice } from "./choice"
-
+import OS from 'os';
 import * as Fs from 'fs'
 import { program } from 'commander'
 import Config, { CCP_Json } from './config'
@@ -9,7 +9,7 @@ import log from './log'
 import { Run, openProject } from './run'
 import Build from './build'
 import inquirer = require('inquirer')
-import { getCreatorProjectVersion, isCreatorProject, isNumber, toMyPath } from './util';
+import { addOpen2ContextMenu, getCreatorProjectVersion, isCreatorProject, isNumber, toMyPath } from './util';
 import { basename, join, normalize } from "path"
 
 program
@@ -301,6 +301,16 @@ program.command('run')
             return log.red(ret.msg)
         }
         Run()
+    })
+program.command("reg-context-menu")
+    .description("将 cce open 注册到右键菜单上")
+    .action(async () => {
+        if (OS.platform() === 'win32') {
+            addOpen2ContextMenu();
+            log.green(`添加到右键菜单成功`);
+        } else {
+            log.yellow(`暂不支持`);
+        }
     })
 program.command("open")
     .description("打开当前目录所在的creator项目")

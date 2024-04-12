@@ -89,4 +89,9 @@ cce list
 
 ![](./doc/cce-open-2.gif)
 
+## 5. cce open 注册到右键菜单
+通过`cce reg-context-menu`将`cce open`注册到右键菜单中，后续使用更加简单
+
+![](./doc/context-menu.gif)
+
 `更多功能，不定期更新...`
