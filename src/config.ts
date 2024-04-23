@@ -182,7 +182,12 @@ class Config {
                 return result;
             }
             let change = false, msg = "";
-            const data = JSON.parse(Fs.readFileSync(fullPath, 'utf8'));
+            let data: Record<string, string> = {};
+            try {
+                data = JSON.parse(Fs.readFileSync(fullPath, 'utf8'));
+            } catch (e) {
+                data = {}
+            }
             if (ret.editor.startsWith('2') && data.hasOwnProperty('v2')) {
                 data.v2 = toMyPath(ret.project);
                 change = true;
