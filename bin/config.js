@@ -171,7 +171,13 @@ class Config {
                 return result;
             }
             let change = false, msg = "";
-            const data = JSON.parse(Fs.readFileSync(fullPath, 'utf8'));
+            let data = {};
+            try {
+                data = JSON.parse(Fs.readFileSync(fullPath, 'utf8'));
+            }
+            catch (e) {
+                data = {};
+            }
             if (ret.editor.startsWith('2') && data.hasOwnProperty('v2')) {
                 data.v2 = (0, util_1.toMyPath)(ret.project);
                 change = true;

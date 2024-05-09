@@ -16,6 +16,8 @@ exports.getBuildCopyToChoice = exports.getGroupChoice = exports.getProjectChoice
 const config_1 = __importDefault(require("./config"));
 const inquirer_1 = __importDefault(require("inquirer"));
 const printf_1 = __importDefault(require("printf"));
+const lodash_1 = require("lodash");
+const similarity_1 = __importDefault(require("similarity"));
 function ask(choices, options) {
     return __awaiter(this, void 0, void 0, function* () {
         const { askMsg } = options;
@@ -42,6 +44,19 @@ function getEditorChoice(options) {
                 value: editor.name,
             };
         });
+        choices.sort();
+        if (options.default) {
+            // 如果默认值不在choices中，则选择一个最相似的
+            const keys = choices.map(item => item.name);
+            if (!keys.find(item => item === options.default)) {
+                const target = options.default;
+                options.default = (0, lodash_1.maxBy)(keys, (key) => {
+                    const sim = (0, similarity_1.default)(key, target);
+                    // console.log(`${key} - ${target} : ${sim}`)
+                    return sim;
+                });
+            }
+        }
         return yield ask(choices, options);
     });
 }

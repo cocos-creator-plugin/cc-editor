@@ -2,7 +2,8 @@ import Config, { Group } from './config'
 import inquirer from 'inquirer'
 import * as child_process from 'child_process';
 import printf from 'printf';
-
+import { maxBy } from 'lodash'
+import similarity from 'similarity'
 export interface Choices {
     /**
      * 和inquirer.prompt({name:'name'})对应着，也可以是其他key
@@ -41,6 +42,19 @@ export async function getEditorChoice(options: ChoiceOptions): Promise<string> {
             value: editor.name,
         }
     })
+    choices.sort();
+    if (options.default) {
+        // 如果默认值不在choices中，则选择一个最相似的
+        const keys = choices.map(item => item.name);
+        if (!keys.find(item => item === options.default)) {
+            const target = options.default;
+            options.default = maxBy(keys, (key) => {
+                const sim = similarity(key, target)
+                // console.log(`${key} - ${target} : ${sim}`)
+                return sim
+            })
+        }
+    }
     return await ask(choices, options);
 }
 
