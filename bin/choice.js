@@ -29,6 +29,7 @@ function ask(choices, options) {
                     type: 'list',
                     default: options.default || "",
                     choices,
+                    pageSize: 100,
                 }
             ]);
             return ans.name;

@@ -189,7 +189,7 @@ class Config {
                 msg = `${this.ccpFileName} sync v3: ${ret.project}`;
             }
             if (!change) {
-                log_1.default.yellow(`sync ${this.ccpFileName} nothing`);
+                log_1.default.yellow(`sync nothing, you should write json field v2/v3 in ${this.ccpFileName}`);
                 return result;
             }
             Fs.writeFileSync(fullPath, JSON.stringify(data, null, 2));

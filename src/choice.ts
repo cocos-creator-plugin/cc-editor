@@ -28,6 +28,7 @@ async function ask(choices: Choices[], options: ChoiceOptions): Promise<string> 
                 type: 'list',
                 default: options.default || "",
                 choices,
+                pageSize: 100,
             }
         ]);
         return ans.name;
