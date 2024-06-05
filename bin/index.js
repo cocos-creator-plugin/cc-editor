@@ -296,6 +296,16 @@ commander_1.program.command('rm-group')
     });
     config_1.default.removeGroup(ans).log();
 }));
+commander_1.program.command("cur")
+    .description("当前的配置")
+    .action(() => {
+    const { use } = config_1.default.data;
+    if (use.editor && use.project) {
+        log_1.default.blue(`${use.editor} - ${use.project}`);
+    }
+    else {
+    }
+});
 commander_1.program.command('list')
     .description('列出所有可用版本')
     .action(() => {

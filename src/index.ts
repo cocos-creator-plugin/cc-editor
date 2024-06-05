@@ -266,7 +266,15 @@ program.command('rm-group')
         Config.removeGroup(ans).log();
     })
 
-
+program.command("cur")
+    .description("当前的配置")
+    .action(() => {
+        const { use } = Config.data
+        if (use.editor && use.project) {
+            log.blue(`${use.editor} - ${use.project}`)
+        } else {
+        }
+    })
 program.command('list')
     .description('列出所有可用版本')
     .action(() => {
