@@ -22,6 +22,9 @@ function ask(choices, options) {
     return __awaiter(this, void 0, void 0, function* () {
         const { askMsg } = options;
         if (choices.length > 0) {
+            choices = choices.sort((a, b) => {
+                return ((a.name > b.name) ? 1 : -1);
+            });
             const ans = yield inquirer_1.default.prompt([
                 {
                     name: 'name',
@@ -45,7 +48,6 @@ function getEditorChoice(options) {
                 value: editor.name,
             };
         });
-        choices.sort();
         if (options.default) {
             // 如果默认值不在choices中，则选择一个最相似的
             const keys = choices.map(item => item.name);

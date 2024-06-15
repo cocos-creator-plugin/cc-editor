@@ -21,6 +21,9 @@ export interface ChoiceOptions {
 async function ask(choices: Choices[], options: ChoiceOptions): Promise<string> {
     const { askMsg } = options;
     if (choices.length > 0) {
+        choices = choices.sort((a, b) => {
+            return ((a.name > b.name) ? 1 : -1);
+        });
         const ans: Choices = await inquirer.prompt([
             {
                 name: 'name',
@@ -43,7 +46,6 @@ export async function getEditorChoice(options: ChoiceOptions): Promise<string> {
             value: editor.name,
         }
     })
-    choices.sort();
     if (options.default) {
         // 如果默认值不在choices中，则选择一个最相似的
         const keys = choices.map(item => item.name);
