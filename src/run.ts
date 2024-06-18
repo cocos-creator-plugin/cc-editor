@@ -35,6 +35,9 @@ export function openProject(editor: string | null, project: string) {
     ret.stdout?.on('data', (data) => {
         console.log(data.toString());
     });
+    ret.stderr?.on('data', (data) => {
+        console.error(data.toString());
+    });
     if (debug) {
         const url = 'chrome://inspect/#devices';
         log.green(`请使用chrome浏览器打开： ${url}`);

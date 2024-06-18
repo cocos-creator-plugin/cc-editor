@@ -17,7 +17,7 @@ function Run() {
 }
 exports.Run = Run;
 function openProject(editor, project) {
-    var _a;
+    var _a, _b;
     if (!editor) {
         return;
     }
@@ -38,6 +38,9 @@ function openProject(editor, project) {
     const ret = os_1.default.platform() === 'win32' ? (0, child_process_1.exec)(cmd) : execa_1.default.command(cmd);
     (_a = ret.stdout) === null || _a === void 0 ? void 0 : _a.on('data', (data) => {
         console.log(data.toString());
+    });
+    (_b = ret.stderr) === null || _b === void 0 ? void 0 : _b.on('data', (data) => {
+        console.error(data.toString());
     });
     if (debug) {
         const url = 'chrome://inspect/#devices';
