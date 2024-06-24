@@ -23,7 +23,24 @@ function ask(choices, options) {
         const { askMsg } = options;
         if (choices.length > 0) {
             choices = choices.sort((a, b) => {
-                return ((a.name > b.name) ? 1 : -1);
+                const arrayA = a.name.split(".");
+                const arrayB = b.name.split(".");
+                const len = Math.min(arrayA.length, arrayB.length);
+                for (let i = 0; i < len; i++) {
+                    const a_name = arrayA[i];
+                    const b_name = arrayB[i];
+                    if (a_name === b_name)
+                        continue;
+                    const numA = parseFloat(a_name);
+                    const numB = parseFloat(b_name);
+                    if (isNaN(numA) || isNaN(numB)) {
+                        return a_name.localeCompare(b_name);
+                    }
+                    else {
+                        return numA - numB;
+                    }
+                }
+                return 0;
             });
             const ans = yield inquirer_1.default.prompt([
                 {
