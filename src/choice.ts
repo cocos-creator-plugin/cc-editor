@@ -4,6 +4,7 @@ import * as child_process from 'child_process';
 import printf from 'printf';
 import { maxBy } from 'lodash'
 import similarity from 'similarity'
+import { sortByName } from './util';
 export interface Choices {
     /**
      * 和inquirer.prompt({name:'name'})对应着，也可以是其他key
@@ -22,23 +23,7 @@ async function ask(choices: Choices[], options: ChoiceOptions): Promise<string> 
     const { askMsg } = options;
     if (choices.length > 0) {
         choices = choices.sort((a, b) => {
-            const arrayA = a.name.split(".");
-            const arrayB = b.name.split(".");
-            const len = Math.min(arrayA.length, arrayB.length);
-            for (let i = 0; i < len; i++) {
-                const a_name = arrayA[i];
-                const b_name = arrayB[i];
-                if (a_name === b_name) continue;
-
-                const numA = parseFloat(a_name);
-                const numB = parseFloat(b_name);
-                if (isNaN(numA) || isNaN(numB)) {
-                    return a_name.localeCompare(b_name);
-                } else {
-                    return numA - numB;
-                }
-            }
-            return 0;
+            return sortByName(a.name, b.name);
         });
         const ans: Choices = await inquirer.prompt([
             {

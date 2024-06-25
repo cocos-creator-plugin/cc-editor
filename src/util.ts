@@ -115,3 +115,23 @@ async function changeRegister(key: string) {
     }
     await regedit.promisified.putValue(obj)
 }
+
+export function sortByName(nameA: string, nameB: string): number {
+    const arrayA = nameA.split(".");
+    const arrayB = nameB.split(".");
+    const len = Math.min(arrayA.length, arrayB.length);
+    for (let i = 0; i < len; i++) {
+        const a_name = arrayA[i];
+        const b_name = arrayB[i];
+        if (a_name === b_name) continue;
+
+        const numA = parseFloat(a_name);
+        const numB = parseFloat(b_name);
+        if (isNaN(numA) || isNaN(numB)) {
+            return a_name.localeCompare(b_name);
+        } else {
+            return numA - numB;
+        }
+    }
+    return 0;
+}

@@ -313,13 +313,17 @@ commander_1.program.command('list')
     const { editors, projects, use } = config_1.default.data;
     log_1.default.blue();
     log_1.default.blue('-- editor --');
-    editors.forEach(el => {
+    editors.sort((a, b) => {
+        return (0, util_1.sortByName)(a.name, b.name);
+    }).forEach(el => {
         const curFlag = use.editor === el.name ? '*' : '';
         log_1.default.blue(printf('%-2s %-10s %-s', curFlag, el.name, (0, util_1.toMyPath)(el.path)));
     });
     log_1.default.blue();
     log_1.default.blue('-- project --');
-    projects.forEach(el => {
+    projects.sort((a, b) => {
+        return (0, util_1.sortByName)(a, b);
+    }).forEach(el => {
         const curFlag = use.project === el ? '*' : '';
         log_1.default.blue(printf('%-2s %-10s', curFlag, (0, util_1.toMyPath)(el)));
     });

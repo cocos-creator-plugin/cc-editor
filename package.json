@@ -1,6 +1,6 @@
 {
   "name": "@xuyanfeng/cc-editor",
-  "version": "1.0.23",
+  "version": "1.0.24",
   "description": "",
   "bin": {
     "cc-editor": "./bin/index.js",
@@ -19,6 +19,7 @@
     "test-open": "tsc && node ./bin/index.js open",
     "test-reg": "tsc && node ./bin/index.js reg-context-menu",
     "test-cur": "tsc && node ./bin/index.js cur",
+    "test-list": "tsc && node ./bin/index.js list",
     "publish-npm": "tsc && npm publish"
   },
   "repository": {

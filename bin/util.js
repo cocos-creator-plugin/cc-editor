@@ -35,7 +35,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.addOpen2ContextMenu = exports.isNumber = exports.getCreatorProjectVersion = exports.isCreatorProject = exports.toMyPath = exports.getEditorVersion = exports.getEditorRealExecutePath = void 0;
+exports.sortByName = exports.addOpen2ContextMenu = exports.isNumber = exports.getCreatorProjectVersion = exports.isCreatorProject = exports.toMyPath = exports.getEditorVersion = exports.getEditorRealExecutePath = void 0;
 const os_1 = __importDefault(require("os"));
 const path_1 = __importStar(require("path"));
 const plist_1 = __importDefault(require("plist"));
@@ -165,4 +165,25 @@ function changeRegister(key) {
         yield regedit_1.default.promisified.putValue(obj);
     });
 }
+function sortByName(nameA, nameB) {
+    const arrayA = nameA.split(".");
+    const arrayB = nameB.split(".");
+    const len = Math.min(arrayA.length, arrayB.length);
+    for (let i = 0; i < len; i++) {
+        const a_name = arrayA[i];
+        const b_name = arrayB[i];
+        if (a_name === b_name)
+            continue;
+        const numA = parseFloat(a_name);
+        const numB = parseFloat(b_name);
+        if (isNaN(numA) || isNaN(numB)) {
+            return a_name.localeCompare(b_name);
+        }
+        else {
+            return numA - numB;
+        }
+    }
+    return 0;
+}
+exports.sortByName = sortByName;
 //# sourceMappingURL=util.js.map

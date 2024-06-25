@@ -9,7 +9,7 @@ import log from './log'
 import { Run, openProject } from './run'
 import Build from './build'
 import inquirer = require('inquirer')
-import { addOpen2ContextMenu, getCreatorProjectVersion, isCreatorProject, isNumber, toMyPath } from './util';
+import { addOpen2ContextMenu, getCreatorProjectVersion, isCreatorProject, isNumber, sortByName, toMyPath } from './util';
 import { basename, join, normalize } from "path"
 
 program
@@ -282,14 +282,18 @@ program.command('list')
         const { editors, projects, use } = Config.data
         log.blue()
         log.blue('-- editor --');
-        editors.forEach(el => {
+        editors.sort((a, b) => {
+            return sortByName(a.name, b.name);
+        }).forEach(el => {
             const curFlag = use.editor === el.name ? '*' : '';
             log.blue(printf('%-2s %-10s %-s', curFlag, el.name, toMyPath(el.path)))
         })
 
         log.blue()
         log.blue('-- project --')
-        projects.forEach(el => {
+        projects.sort((a, b) => {
+            return sortByName(a, b);
+        }).forEach(el => {
             const curFlag = use.project === el ? '*' : '';
             log.blue(printf('%-2s %-10s', curFlag, toMyPath(el)))
         })

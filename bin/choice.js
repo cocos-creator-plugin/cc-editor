@@ -18,29 +18,13 @@ const inquirer_1 = __importDefault(require("inquirer"));
 const printf_1 = __importDefault(require("printf"));
 const lodash_1 = require("lodash");
 const similarity_1 = __importDefault(require("similarity"));
+const util_1 = require("./util");
 function ask(choices, options) {
     return __awaiter(this, void 0, void 0, function* () {
         const { askMsg } = options;
         if (choices.length > 0) {
             choices = choices.sort((a, b) => {
-                const arrayA = a.name.split(".");
-                const arrayB = b.name.split(".");
-                const len = Math.min(arrayA.length, arrayB.length);
-                for (let i = 0; i < len; i++) {
-                    const a_name = arrayA[i];
-                    const b_name = arrayB[i];
-                    if (a_name === b_name)
-                        continue;
-                    const numA = parseFloat(a_name);
-                    const numB = parseFloat(b_name);
-                    if (isNaN(numA) || isNaN(numB)) {
-                        return a_name.localeCompare(b_name);
-                    }
-                    else {
-                        return numA - numB;
-                    }
-                }
-                return 0;
+                return (0, util_1.sortByName)(a.name, b.name);
             });
             const ans = yield inquirer_1.default.prompt([
                 {
