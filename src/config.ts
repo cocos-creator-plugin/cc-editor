@@ -162,7 +162,7 @@ class Config {
         return result;
     }
 
-    useGroup(name: string) {
+    useGroup(name: string, force: boolean = false) {
         const result = new Result();
         let ret = this.data.groups.find(el => el.name === name)
         if (ret) {
@@ -178,22 +178,28 @@ class Config {
             // 检查是否和cc-plugin的一致
             const fullPath = Path.join(process.cwd(), this.ccpFileName);
             if (!existsSync(fullPath)) {
-                log.green(`not exist: ${fullPath}`)
-                return result;
+                if (force) {
+                    Fs.writeFileSync(fullPath, '{}');
+                } else {
+                    log.green(`not exist: ${fullPath}`)
+                    return result;
+                }
             }
             let change = false, msg = "";
             let data: Record<string, string> = {};
             try {
                 data = JSON.parse(Fs.readFileSync(fullPath, 'utf8'));
+                delete data.V2;
+                delete data.V3;
             } catch (e) {
                 data = {}
             }
-            if (ret.editor.startsWith('2') && data.hasOwnProperty('v2')) {
+            if (ret.editor.startsWith('2')) {
                 data.v2 = toMyPath(ret.project);
                 change = true;
                 msg = `${this.ccpFileName} sync v2: ${ret.project}`;
             }
-            if (ret.editor.startsWith('3') && data.hasOwnProperty('v3')) {
+            if (ret.editor.startsWith('3')) {
                 data.v3 = toMyPath(ret.project);
                 change = true;
                 msg = `${this.ccpFileName} sync v3: ${ret.project}`;

@@ -1,6 +1,6 @@
 {
   "name": "@xuyanfeng/cc-editor",
-  "version": "1.0.24",
+  "version": "1.0.25",
   "description": "",
   "bin": {
     "cc-editor": "./bin/index.js",
@@ -13,6 +13,8 @@
     "test-format": "tsc && node ./bin/index.js format",
     "test-ccp-set": "tsc && node ./bin/index.js ccp-set -v2 E:/proj -v3 E:/proj",
     "test-use-group": "tsc && node ./bin/index.js use-group",
+    "test-use-group_force": "tsc && node ./bin/index.js use-group --force",
+    "test-use-group_f": "tsc && node ./bin/index.js use-group -f",
     "test-use-editor": "tsc && node ./bin/index.js use-editor",
     "test-ccp-enabled": "tsc && node ./bin/index.js ccp-enabled true",
     "test-setup": "tsc && node ./bin/index.js setup",

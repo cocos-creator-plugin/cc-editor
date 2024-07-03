@@ -215,20 +215,21 @@ program.command('use-project')
         }
 
     })
-async function doUseGroup() {
+async function doUseGroup(force: boolean = false) {
     const groupName = await getGroupChoice({
         askMsg: '请选择要使用的组合',
     })
     if (groupName) {
-        Config.useGroup(groupName).log();
+        Config.useGroup(groupName, force).log();
     } else {
         log.red('没有可以使用的组合')
     }
 }
 program.command('use-group')
     .description(`使用组合快速切换配置，支持${Config.ccpFileName}联动`)
-    .action(async () => {
-        await doUseGroup();
+    .option('-f, --force', `强制关联配置，没有${Config.ccpFileName}会自动创建`)
+    .action(async ({ force }) => {
+        await doUseGroup(!!force);
     })
 program.command('rm-project')
     .description('删除项目配置')

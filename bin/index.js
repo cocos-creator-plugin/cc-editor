@@ -244,13 +244,13 @@ commander_1.program.command('use-project')
         log_1.default.red(`请先添加项目路径： add-project `);
     }
 }));
-function doUseGroup() {
+function doUseGroup(force = false) {
     return __awaiter(this, void 0, void 0, function* () {
         const groupName = yield (0, choice_1.getGroupChoice)({
             askMsg: '请选择要使用的组合',
         });
         if (groupName) {
-            config_1.default.useGroup(groupName).log();
+            config_1.default.useGroup(groupName, force).log();
         }
         else {
             log_1.default.red('没有可以使用的组合');
@@ -259,8 +259,9 @@ function doUseGroup() {
 }
 commander_1.program.command('use-group')
     .description(`使用组合快速切换配置，支持${config_1.default.ccpFileName}联动`)
-    .action(() => __awaiter(void 0, void 0, void 0, function* () {
-    yield doUseGroup();
+    .option('-f, --force', `强制关联配置，没有${config_1.default.ccpFileName}会自动创建`)
+    .action(({ force }) => __awaiter(void 0, void 0, void 0, function* () {
+    yield doUseGroup(!!force);
 }));
 commander_1.program.command('rm-project')
     .description('删除项目配置')
