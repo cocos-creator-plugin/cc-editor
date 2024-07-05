@@ -251,9 +251,11 @@ function doUseGroup(force = false) {
         });
         if (groupName) {
             config_1.default.useGroup(groupName, force).log();
+            return true;
         }
         else {
             log_1.default.red('没有可以使用的组合');
+            return false;
         }
     });
 }
@@ -262,6 +264,15 @@ commander_1.program.command('use-group')
     .option('-f, --force', `强制关联配置，没有${config_1.default.ccpFileName}会自动创建`)
     .action(({ force }) => __awaiter(void 0, void 0, void 0, function* () {
     yield doUseGroup(!!force);
+}));
+commander_1.program.command("run-group")
+    .description(`运行组合，支持${config_1.default.ccpFileName}联动`)
+    .option('-f, --force', `强制关联配置，没有${config_1.default.ccpFileName}会自动创建`)
+    .action(({ force }) => __awaiter(void 0, void 0, void 0, function* () {
+    const b = yield doUseGroup(!!force);
+    if (b) {
+        run();
+    }
 }));
 commander_1.program.command('rm-project')
     .description('删除项目配置')
@@ -338,12 +349,15 @@ commander_1.program.command('cfg')
 commander_1.program.command('run')
     .description('启动运行编辑器')
     .action(() => {
+    run();
+});
+function run() {
     const ret = config_1.default.checkRun();
     if (!ret.success) {
         return log_1.default.red(ret.msg);
     }
     (0, run_1.Run)();
-});
+}
 commander_1.program.command("reg-context-menu")
     .description("将 cce open 注册到右键菜单上")
     .action(() => __awaiter(void 0, void 0, void 0, function* () {

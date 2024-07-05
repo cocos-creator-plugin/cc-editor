@@ -215,14 +215,16 @@ program.command('use-project')
         }
 
     })
-async function doUseGroup(force: boolean = false) {
+async function doUseGroup(force: boolean = false): Promise<boolean> {
     const groupName = await getGroupChoice({
         askMsg: '请选择要使用的组合',
     })
     if (groupName) {
         Config.useGroup(groupName, force).log();
+        return true;
     } else {
         log.red('没有可以使用的组合')
+        return false;
     }
 }
 program.command('use-group')
@@ -230,6 +232,15 @@ program.command('use-group')
     .option('-f, --force', `强制关联配置，没有${Config.ccpFileName}会自动创建`)
     .action(async ({ force }) => {
         await doUseGroup(!!force);
+    })
+program.command("run-group")
+    .description(`运行组合，支持${Config.ccpFileName}联动`)
+    .option('-f, --force', `强制关联配置，没有${Config.ccpFileName}会自动创建`)
+    .action(async ({ force }) => {
+        const b = await doUseGroup(!!force);
+        if (b) {
+            run();
+        }
     })
 program.command('rm-project')
     .description('删除项目配置')
@@ -309,12 +320,15 @@ program.command('cfg')
 program.command('run')
     .description('启动运行编辑器')
     .action(() => {
-        const ret = Config.checkRun();
-        if (!ret.success) {
-            return log.red(ret.msg)
-        }
-        Run()
+        run()
     })
+function run() {
+    const ret = Config.checkRun();
+    if (!ret.success) {
+        return log.red(ret.msg)
+    }
+    Run()
+}
 program.command("reg-context-menu")
     .description("将 cce open 注册到右键菜单上")
     .action(async () => {
